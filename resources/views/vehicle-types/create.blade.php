@@ -34,8 +34,7 @@
                             <div class="input-group">
                                 <span class="input-group-text">Rp</span>
                                 <input type="number" class="form-control @error('flat_rate') is-invalid @enderror"
-                                    id="flat_rate" name="flat_rate" value="{{ old('flat_rate') }}" min="0"
-                                    step="1000" required>
+                                    id="flat_rate" name="flat_rate" value="{{ old('flat_rate') }}" min="0" required>
                                 @error('flat_rate')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
