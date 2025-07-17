@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Login</title>
+</head>
+<body>
+    <form action="http://localhost:8000/login" method="POST">
+        <input type="hidden" name="_token" value="test">
+        <input type="email" name="email" value="admin@parkir.com" placeholder="Email">
+        <input type="password" name="password" value="password" placeholder="Password">
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>
