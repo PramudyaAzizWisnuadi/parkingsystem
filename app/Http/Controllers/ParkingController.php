@@ -38,8 +38,10 @@ class ParkingController extends Controller
             'notes' => $request->notes
         ]);
 
-        return redirect()->route('parking.show', $transaction->id)
-            ->with('success', 'Transaksi parkir berhasil dibuat. Tiket nomor: ' . $transaction->ticket_number);
+        // Redirect to print page with auto-print
+        return redirect()->route('parking.print', $transaction->id)
+            ->with('success', 'Transaksi parkir berhasil dibuat. Tiket nomor: ' . $transaction->ticket_number)
+            ->with('auto_print', true);
     }
 
     public function show(ParkingTransaction $parking)

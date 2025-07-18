@@ -80,15 +80,32 @@ class ParkingTransaction extends Model
 
     public static function generateTicketNumber()
     {
-        $prefix = 'TKT';
         $date = Carbon::now()->format('ymd');
-        $lastTransaction = self::whereDate('created_at', Carbon::today())
-            ->orderBy('id', 'desc')
-            ->first();
 
-        $sequence = $lastTransaction ?
-            intval(substr($lastTransaction->ticket_number, -4)) + 1 : 1;
+        // Get all tickets from today to find the highest sequence
+        $todayTickets = self::whereDate('created_at', Carbon::today())
+            ->pluck('ticket_number')
+            ->filter(function ($ticketNumber) {
+                return !empty($ticketNumber);
+            });
 
-        return $prefix . $date . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+        $maxSequence = 0;
+
+        foreach ($todayTickets as $ticketNumber) {
+            // Handle both old format (TKT250718001) and new format (250718001)
+            if (str_starts_with($ticketNumber, 'TKT')) {
+                // Old format: TKT + date + sequence
+                $sequence = intval(substr($ticketNumber, -4));
+            } else {
+                // New format: date + sequence
+                $sequence = intval(substr($ticketNumber, -4));
+            }
+
+            $maxSequence = max($maxSequence, $sequence);
+        }
+
+        $newSequence = $maxSequence + 1;
+
+        return $date . str_pad($newSequence, 4, '0', STR_PAD_LEFT);
     }
 }

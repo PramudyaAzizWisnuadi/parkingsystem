@@ -73,8 +73,9 @@
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-save"></i> Proses Masuk
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                <i class="fas fa-save" id="submitIcon"></i>
+                                <span id="submitText">Proses Masuk & Print Tiket</span>
                             </button>
                             <a href="{{ route('parking.index') }}" class="btn btn-secondary btn-lg">
                                 <i class="fas fa-times"></i> Batal
@@ -95,6 +96,26 @@
                     </div>
                     <small class="text-muted">
                         Pilih jenis kendaraan untuk melihat tarif yang berlaku.
+                    </small>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-print text-primary"></i> Auto Print Tiket
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Fitur Aktif:</strong> Tiket akan otomatis terprint setelah transaksi berhasil disimpan.
+                    </div>
+                    <small class="text-muted">
+                        <strong>Pastikan:</strong><br>
+                        • Printer sudah terhubung<br>
+                        • Kertas thermal 58mm tersedia<br>
+                        • Printer dalam status ready
                     </small>
                 </div>
             </div>
@@ -371,6 +392,35 @@
                         alert('Mohon pilih jenis kendaraan!');
                         return false;
                     }
+
+                    // Show loading state
+                    const submitBtn = document.getElementById('submitBtn');
+                    const submitIcon = document.getElementById('submitIcon');
+                    const submitText = document.getElementById('submitText');
+
+                    if (submitBtn && submitIcon && submitText) {
+                        submitBtn.disabled = true;
+                        submitIcon.className = 'fas fa-spinner fa-spin';
+                        submitText.textContent = 'Memproses & Menyiapkan Tiket...';
+                        submitBtn.classList.remove('btn-primary');
+                        submitBtn.classList.add('btn-warning');
+                    }
+
+                    // Show notification
+                    const notification = document.createElement('div');
+                    notification.className = 'alert alert-info mt-3';
+                    notification.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-print me-2"></i>
+                            <div>
+                                <strong>Informasi:</strong> Setelah proses selesai, tiket akan otomatis terprint.
+                                <br><small>Pastikan printer sudah siap dan terhubung.</small>
+                            </div>
+                        </div>
+                    `;
+
+                    const form = document.querySelector('form');
+                    form.appendChild(notification);
                 });
 
                 // Auto focus on license plate input

@@ -1,0 +1,24 @@
+<svg width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+    
+    <!-- Background with rounded corners -->
+    <rect width="32" height="32" rx="5" ry="5" fill="url(#bg)"/>
+    
+    <!-- Car body -->
+    <rect x="6" y="14" width="20" height="8" rx="2" ry="2" fill="white"/>
+    
+    <!-- Car windows -->
+    <rect x="8" y="16" width="16" height="4" rx="1" ry="1" fill="#667eea"/>
+    
+    <!-- Wheels -->
+    <circle cx="10" cy="25" r="2.5" fill="white"/>
+    <circle cx="22" cy="25" r="2.5" fill="white"/>
+    
+    <!-- "P" text -->
+    <text x="16" y="20" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="8" font-weight="bold">P</text>
+</svg>

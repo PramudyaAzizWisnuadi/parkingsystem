@@ -1,0 +1,61 @@
+/* Enhanced brand styling */
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #fff !important;
+    text-decoration: none;
+}
+
+.navbar-brand:hover {
+    color: #f8f9fa !important;
+    text-decoration: none;
+}
+
+/* PWA install prompt */
+.pwa-install-banner {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 10px;
+    text-align: center;
+    position: relative;
+    z-index: 1050;
+}
+
+.pwa-install-banner .btn {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    font-size: 0.875rem;
+    padding: 5px 15px;
+    margin: 0 5px;
+}
+
+.pwa-install-banner .btn:hover {
+    background: rgba(255,255,255,0.3);
+    border-color: rgba(255,255,255,0.5);
+    color: white;
+}
+
+/* Loading state for favicon */
+.favicon-loading {
+    animation: faviconPulse 2s infinite;
+}
+
+@keyframes faviconPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .navbar-brand::before {
+        filter: contrast(2);
+    }
+}
+
+/* Print styles */
+@media print {
+    .navbar-brand::before {
+        display: none;
+    }
+}

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favicon Generator - MD Parking</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f8f9fa; }
+        .generator { max-width: 800px; margin: 0 auto; }
+        .preview { display: flex; gap: 20px; margin: 20px 0; }
+        .icon-preview { text-align: center; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        canvas { border: 1px solid #ddd; margin: 10px; }
+        .download-btn { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .download-btn:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="generator">
+        <h1>🚗 MD Parking System - Favicon Generator</h1>
+        
+        <div class="preview">
+            <div class="icon-preview">
+                <h3>16x16 (Browser Tab)</h3>
+                <canvas id="favicon16" width="16" height="16"></canvas>
+                <br><button class="download-btn" onclick="downloadIcon('favicon16', 'favicon-16x16.png')">Download</button>
+            </div>
+            
+            <div class="icon-preview">
+                <h3>32x32 (Bookmark)</h3>
+                <canvas id="favicon32" width="32" height="32"></canvas>
+                <br><button class="download-btn" onclick="downloadIcon('favicon32', 'favicon-32x32.png')">Download</button>
+            </div>
+            
+            <div class="icon-preview">
+                <h3>48x48 (Desktop)</h3>
+                <canvas id="favicon48" width="48" height="48"></canvas>
+                <br><button class="download-btn" onclick="downloadIcon('favicon48', 'favicon-48x48.png')">Download</button>
+            </div>
+            
+            <div class="icon-preview">
+                <h3>180x180 (Apple Touch)</h3>
+                <canvas id="favicon180" width="180" height="180" style="max-width: 100px;"></canvas>
+                <br><button class="download-btn" onclick="downloadIcon('favicon180', 'apple-touch-icon.png')">Download</button>
+            </div>
+        </div>
+
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3>📋 HTML Tags untuk Laravel:</h3>
+            <pre style="background: #f8f9fa; padding: 15px; border-radius: 4px; overflow-x: auto;"><code>&lt;!-- Favicon --&gt;
+&lt;link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}"&gt;
+&lt;link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}"&gt;
+&lt;link rel="icon" type="image/png" sizes="48x48" href="{{ asset('favicon-48x48.png') }}"&gt;
+
+&lt;!-- Apple Touch Icon --&gt;
+&lt;link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}"&gt;
+
+&lt;!-- Manifest --&gt;
+&lt;link rel="manifest" href="{{ asset('manifest.json') }}"&gt;</code></pre>
+        </div>
+
+        <div style="background: white; padding: 20px; border-radius: 8px;">
+            <h3>🎨 Design Elements:</h3>
+            <ul>
+                <li><strong>Background:</strong> Gradient dari biru ke ungu (sesuai tema aplikasi)</li>
+                <li><strong>Icon:</strong> Mobil dengan huruf "P" untuk Parking</li>
+                <li><strong>Style:</strong> Modern, minimalis, mudah dikenali</li>
+                <li><strong>Colors:</strong> #667eea (biru) → #764ba2 (ungu)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function createParkingIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            const scale = size / 32; // Base size 32px
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, size, size);
+            
+            // Create gradient background
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            
+            // Background with rounded corners
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, size * 0.15);
+            ctx.fill();
+            
+            // Car icon (simplified)
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.4}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            if (size >= 32) {
+                // For larger sizes, draw a car icon
+                drawCarIcon(ctx, size);
+            } else {
+                // For smaller sizes, just show "P"
+                ctx.fillText('P', size / 2, size / 2);
+            }
+        }
+        
+        function drawCarIcon(ctx, size) {
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const carWidth = size * 0.6;
+            const carHeight = size * 0.3;
+            
+            // Car body
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.roundRect(centerX - carWidth/2, centerY - carHeight/2, carWidth, carHeight, size * 0.05);
+            ctx.fill();
+            
+            // Windows
+            ctx.fillStyle = '#667eea';
+            const windowWidth = carWidth * 0.6;
+            const windowHeight = carHeight * 0.4;
+            ctx.beginPath();
+            ctx.roundRect(centerX - windowWidth/2, centerY - windowHeight/2, windowWidth, windowHeight, size * 0.02);
+            ctx.fill();
+            
+            // Wheels
+            ctx.fillStyle = 'white';
+            const wheelRadius = size * 0.08;
+            const wheelY = centerY + carHeight/2 + wheelRadius/2;
+            
+            // Left wheel
+            ctx.beginPath();
+            ctx.arc(centerX - carWidth/3, wheelY, wheelRadius, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Right wheel  
+            ctx.beginPath();
+            ctx.arc(centerX + carWidth/3, wheelY, wheelRadius, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // "P" text overlay
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.25}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('P', centerX, centerY - size * 0.1);
+        }
+        
+        // Generate all favicon sizes
+        const sizes = [16, 32, 48, 180];
+        sizes.forEach(size => {
+            const canvas = document.getElementById(`favicon${size}`);
+            createParkingIcon(canvas, size);
+        });
+        
+        function downloadIcon(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // Auto-download all icons
+        function downloadAll() {
+            setTimeout(() => downloadIcon('favicon16', 'favicon-16x16.png'), 100);
+            setTimeout(() => downloadIcon('favicon32', 'favicon-32x32.png'), 200);
+            setTimeout(() => downloadIcon('favicon48', 'favicon-48x48.png'), 300);
+            setTimeout(() => downloadIcon('favicon180', 'apple-touch-icon.png'), 400);
+        }
+        
+        // Add download all button
+        document.addEventListener('DOMContentLoaded', function() {
+            const downloadAllBtn = document.createElement('button');
+            downloadAllBtn.className = 'download-btn';
+            downloadAllBtn.style.cssText = 'display: block; margin: 20px auto; font-size: 16px; padding: 15px 30px;';
+            downloadAllBtn.textContent = '📦 Download All Icons';
+            downloadAllBtn.onclick = downloadAll;
+            document.querySelector('.generator').appendChild(downloadAllBtn);
+        });
+        
+        // Add polyfill for roundRect if not supported
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+                this.beginPath();
+                this.moveTo(x + radius, y);
+                this.arcTo(x + width, y, x + width, y + height, radius);
+                this.arcTo(x + width, y + height, x, y + height, radius);
+                this.arcTo(x, y + height, x, y, radius);
+                this.arcTo(x, y, x + width, y, radius);
+                this.closePath();
+            };
+        }
+    </script>
+</body>
+</html>

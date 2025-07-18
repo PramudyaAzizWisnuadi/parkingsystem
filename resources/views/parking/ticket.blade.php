@@ -220,17 +220,44 @@
         <div class="no-print">
             <button onclick="window.print();" class="btn-primary">Print Tiket</button>
             <button onclick="window.close();" class="btn-secondary">Tutup</button>
+            <a href="{{ route('parking.index') }}" class="btn-secondary">Kembali ke Daftar</a>
+            <a href="{{ route('parking.create') }}" class="btn-primary">Transaksi Baru</a>
         </div>
 
         <script>
-            // Auto print when page loads
-            @if (config('ticket.auto_print.enabled'))
+            // Auto print when page loads from redirect after create
+            @if (session('auto_print') || config('ticket.auto_print.enabled', false))
                 window.onload = function() {
                     setTimeout(function() {
                         window.print();
-                    }, {{ config('ticket.auto_print.delay') }});
+
+                        // After print dialog, show options
+                        setTimeout(function() {
+                            if (confirm(
+                                    'Tiket sudah dicetak?\n\nKlik OK untuk transaksi baru\nKlik Cancel untuk kembali ke daftar'
+                                    )) {
+                                window.location.href = '{{ route('parking.create') }}';
+                            } else {
+                                window.location.href = '{{ route('parking.index') }}';
+                            }
+                        }, 1000);
+                    }, {{ config('ticket.auto_print.delay', 500) }});
                 };
             @endif
+
+            // Manual print function
+            function printTicket() {
+                window.print();
+            }
+
+            // Handle print completion
+            window.addEventListener('beforeprint', function() {
+                console.log('Printing started...');
+            });
+
+            window.addEventListener('afterprint', function() {
+                console.log('Printing completed or cancelled');
+            });
         </script>
     </body>
 
