@@ -68,8 +68,7 @@
                         <form action="{{ route('vehicle-types.destroy', $vehicleType->id) }}" method="POST">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger w-100"
-                                onclick="return confirm('Apakah Anda yakin ingin menghapus jenis kendaraan ini?')">
+                            <button type="button" class="btn btn-danger w-100" id="deleteBtn">
                                 <i class="fas fa-trash"></i> Hapus
                             </button>
                         </form>
@@ -79,3 +78,36 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteBtn = document.getElementById('deleteBtn');
+
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Konfirmasi Hapus',
+                        text: 'Apakah Anda yakin ingin menghapus jenis kendaraan ini?',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, Hapus',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                        customClass: {
+                            container: 'swal2-container-custom'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Submit the form
+                            this.closest('form').submit();
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+@endpush

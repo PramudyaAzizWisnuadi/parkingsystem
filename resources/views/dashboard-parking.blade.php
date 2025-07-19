@@ -148,11 +148,6 @@
                                                     <i class="fas fa-eye"></i> <span
                                                         class="d-none d-lg-inline">Detail</span>
                                                 </a>
-                                                <a href="{{ route('parking.print', $transaction->id) }}"
-                                                    class="btn btn-sm btn-outline-success" target="_blank">
-                                                    <i class="fas fa-print"></i> <span
-                                                        class="d-none d-lg-inline">Print</span>
-                                                </a>
                                             </td>
                                         </tr>
                                     @endforeach

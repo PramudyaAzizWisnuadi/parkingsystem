@@ -7,6 +7,8 @@
         <title>500 - Kesalahan Server | {{ config('app.name', 'Sistem Parkir') }}</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <!-- SweetAlert2 -->
+        <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
         <style>
             body {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -343,6 +345,8 @@
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- SweetAlert2 -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             // Auto refresh every 30 seconds
             let refreshInterval;
@@ -369,8 +373,13 @@
                 };
 
                 // In a real application, this would send to your error tracking service
-                alert(
-                    'Laporan kesalahan telah dicatat. Tim teknis akan segera menindaklanjuti.\n\nRef ID: {{ Str::random(8) }}');
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Laporan Kesalahan Tercatat',
+                    text: `Tim teknis akan segera menindaklanjuti.\n\nRef ID: {{ Str::random(8) }}`,
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#17a2b8'
+                });
             }
 
             // Add interactivity

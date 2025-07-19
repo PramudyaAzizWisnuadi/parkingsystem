@@ -54,8 +54,8 @@
                                             class="d-inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                onclick="return confirm('Apakah Anda yakin ingin menghapus jenis kendaraan ini?')">
+                                            <button type="button" class="btn btn-sm btn-outline-danger delete-btn"
+                                                data-id="{{ $vehicleType->id }}" data-name="{{ $vehicleType->name }}">
                                                 <i class="fas fa-trash"></i> Hapus
                                             </button>
                                         </form>
@@ -77,3 +77,38 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteButtons = document.querySelectorAll('.delete-btn');
+
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    const vehicleName = this.getAttribute('data-name');
+
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Konfirmasi Hapus',
+                        text: `Apakah Anda yakin ingin menghapus jenis kendaraan "${vehicleName}"?`,
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, Hapus',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d',
+                        customClass: {
+                            container: 'swal2-container-custom'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Submit the form
+                            this.closest('form').submit();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+@endpush

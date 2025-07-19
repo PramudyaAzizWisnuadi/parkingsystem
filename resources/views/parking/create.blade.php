@@ -99,28 +99,6 @@
                     </small>
                 </div>
             </div>
-
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h6 class="card-title mb-0">
-                        <i class="fas fa-print text-primary"></i> Auto Print Tiket
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle me-2"></i>
-                        <strong>Fitur Aktif:</strong> Tiket akan otomatis terprint tanpa membuka window/tab baru.
-                    </div>
-                    <small class="text-muted">
-                        <strong>Proses Print:</strong><br>
-                        • Print menggunakan iframe tersembunyi<br>
-                        • Tidak mengganggu form aktif<br>
-                        • Fallback manual print jika diperlukan<br>
-                        • Auto cleanup setelah print
-                    </small>
-                </div>
-            </div>
-
             <div class="card mt-3">
                 <div class="card-header">
                     <h6 class="card-title mb-0">
@@ -250,6 +228,57 @@
                 100% {
                     transform: rotate(360deg);
                 }
+            }
+
+            /* SweetAlert2 Custom Styles */
+            .swal2-container-custom {
+                z-index: 10000;
+            }
+
+            .swal2-popup {
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                font-family: inherit;
+            }
+
+            .swal2-title {
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 1rem;
+            }
+
+            .swal2-content {
+                font-size: 1rem;
+                color: #666;
+                line-height: 1.5;
+            }
+
+            .swal2-confirm {
+                padding: 10px 30px;
+                border-radius: 5px;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
+
+            .swal2-confirm:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            /* Toast styles */
+            .swal2-toast {
+                border-radius: 8px;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            }
+
+            .swal2-toast .swal2-title {
+                font-size: 1.1rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .swal2-toast .swal2-content {
+                font-size: 0.9rem;
             }
         </style>
 
@@ -450,122 +479,164 @@
 
                 // Form validation and AJAX submission
                 document.querySelector('form').addEventListener('submit', function(e) {
-                    e.preventDefault(); // Prevent default form submission
+                    // Hanya validasi jika submit dari tombol submit, bukan dari link lain (misal logout)
+                    // Cek activeElement adalah tombol submit di form ini
+                    const activeEl = document.activeElement;
+                    const isSubmitBtn = activeEl && activeEl.type === 'submit' && activeEl.form === this;
+                    // Atau jika submit via keyboard (Enter) di input
+                    const isKeyboardSubmit = !activeEl || (activeEl.tagName === 'INPUT' || activeEl.tagName ===
+                        'TEXTAREA');
 
-                    const licensePlateValue = licensePlateInput.value.trim();
+                    if (isSubmitBtn || isKeyboardSubmit) {
+                        e.preventDefault();
 
-                    if (licensePlateValue && !validateLicensePlate(licensePlateValue)) {
-                        showValidationFeedback(false);
-                        licensePlateInput.focus();
-                        alert('Mohon masukkan plat nomor dengan format yang sesuai regulasi Indonesia!');
-                        return false;
+                        const licensePlateValue = licensePlateInput.value.trim();
+
+                        if (licensePlateValue && !validateLicensePlate(licensePlateValue)) {
+                            showValidationFeedback(false);
+                            licensePlateInput.focus();
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Format Plat Nomor Tidak Valid',
+                                text: 'Mohon masukkan plat nomor dengan format yang sesuai regulasi Indonesia!',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#d33',
+                                customClass: {
+                                    container: 'swal2-container-custom'
+                                }
+                            });
+                            return false;
+                        }
+
+                        // Check if vehicle type is selected
+                        if (!vehicleTypeInput.value) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Jenis Kendaraan Belum Dipilih',
+                                text: 'Mohon pilih jenis kendaraan terlebih dahulu!',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#ffc107',
+                                customClass: {
+                                    container: 'swal2-container-custom'
+                                }
+                            });
+                            return false;
+                        }
+
+                        // Show loading state
+                        const submitBtn = document.getElementById('submitBtn');
+                        const submitIcon = document.getElementById('submitIcon');
+                        const submitText = document.getElementById('submitText');
+
+                        if (submitBtn && submitIcon && submitText) {
+                            submitBtn.disabled = true;
+                            submitIcon.className = 'fas fa-spinner fa-spin';
+                            submitText.textContent = 'Memproses & Menyiapkan Tiket...';
+                            submitBtn.classList.remove('btn-primary');
+                            submitBtn.classList.add('btn-warning');
+                        }
+
+                        // Show processing notification
+                        showNotification('info', 'Memproses transaksi...',
+                            'Tiket akan otomatis terprint setelah selesai.');
+
+                        // Prepare form data
+                        const formData = new FormData(this);
+
+                        // Submit via AJAX
+                        fetch(this.action, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                        .getAttribute('content')
+                                }
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    return response.json().then(err => Promise.reject(err));
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.success) {
+                                    // Show success message
+                                    showNotification('success', 'Transaksi Berhasil!', data.message);
+
+                                    // Auto print ticket
+                                    printTicket(data.print_url, data.ticket_number);
+
+                                    // Reset form after short delay
+                                    setTimeout(() => {
+                                        resetForm();
+                                    }, 2000);
+                                } else {
+                                    throw new Error(data.message ||
+                                        'Terjadi kesalahan saat memproses transaksi');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                let errorMessage = 'Terjadi kesalahan saat memproses transaksi';
+
+                                // Handle validation errors
+                                if (error.errors) {
+                                    const firstError = Object.values(error.errors)[0];
+                                    errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                                } else if (error.message) {
+                                    errorMessage = error.message;
+                                }
+
+                                showNotification('error', 'Gagal Memproses', errorMessage);
+                                resetButtonState();
+                            });
                     }
-
-                    // Check if vehicle type is selected
-                    if (!vehicleTypeInput.value) {
-                        alert('Mohon pilih jenis kendaraan!');
-                        return false;
-                    }
-
-                    // Show loading state
-                    const submitBtn = document.getElementById('submitBtn');
-                    const submitIcon = document.getElementById('submitIcon');
-                    const submitText = document.getElementById('submitText');
-
-                    if (submitBtn && submitIcon && submitText) {
-                        submitBtn.disabled = true;
-                        submitIcon.className = 'fas fa-spinner fa-spin';
-                        submitText.textContent = 'Memproses & Menyiapkan Tiket...';
-                        submitBtn.classList.remove('btn-primary');
-                        submitBtn.classList.add('btn-warning');
-                    }
-
-                    // Show processing notification
-                    showNotification('info', 'Memproses transaksi...',
-                        'Tiket akan otomatis terprint setelah selesai.');
-
-                    // Prepare form data
-                    const formData = new FormData(this);
-
-                    // Submit via AJAX
-                    fetch(this.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                    .getAttribute('content')
-                            }
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                return response.json().then(err => Promise.reject(err));
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.success) {
-                                // Show success message
-                                showNotification('success', 'Transaksi Berhasil!', data.message);
-
-                                // Auto print ticket
-                                printTicket(data.print_url, data.ticket_number);
-
-                                // Reset form after short delay
-                                setTimeout(() => {
-                                    resetForm();
-                                }, 2000);
-                            } else {
-                                throw new Error(data.message ||
-                                    'Terjadi kesalahan saat memproses transaksi');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            let errorMessage = 'Terjadi kesalahan saat memproses transaksi';
-
-                            // Handle validation errors
-                            if (error.errors) {
-                                const firstError = Object.values(error.errors)[0];
-                                errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
-                            } else if (error.message) {
-                                errorMessage = error.message;
-                            }
-
-                            showNotification('error', 'Gagal Memproses', errorMessage);
-                            resetButtonState();
-                        });
                 });
 
                 // Function to show notification
                 function showNotification(type, title, message) {
-                    // Remove existing notifications
-                    const existingNotifications = document.querySelectorAll('.auto-notification');
-                    existingNotifications.forEach(notif => notif.remove());
+                    // Configure SweetAlert2 based on type
+                    let swalConfig = {
+                        title: title,
+                        text: message,
+                        customClass: {
+                            container: 'swal2-container-custom'
+                        }
+                    };
 
-                    const notification = document.createElement('div');
-                    notification.className = `alert alert-${type === 'error' ? 'danger' : type} auto-notification mt-3`;
-                    notification.innerHTML = `
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
-                            <div>
-                                <strong>${title}</strong><br>
-                                <small>${message}</small>
-                            </div>
-                        </div>
-                    `;
-
-                    const form = document.querySelector('form');
-                    form.appendChild(notification);
-
-                    // Auto remove after 5 seconds for success/info, keep error until manual action
-                    if (type !== 'error') {
-                        setTimeout(() => {
-                            if (notification.parentNode) {
-                                notification.remove();
-                            }
-                        }, 5000);
+                    switch (type) {
+                        case 'success':
+                            swalConfig.icon = 'success';
+                            swalConfig.confirmButtonColor = '#28a745';
+                            swalConfig.timer = 3000;
+                            swalConfig.showConfirmButton = false;
+                            swalConfig.toast = true;
+                            swalConfig.position = 'top-end';
+                            break;
+                        case 'info':
+                            swalConfig.icon = 'info';
+                            swalConfig.confirmButtonColor = '#17a2b8';
+                            swalConfig.timer = 4000;
+                            swalConfig.showConfirmButton = false;
+                            swalConfig.toast = true;
+                            swalConfig.position = 'top-end';
+                            break;
+                        case 'error':
+                            swalConfig.icon = 'error';
+                            swalConfig.confirmButtonColor = '#dc3545';
+                            swalConfig.confirmButtonText = 'OK';
+                            break;
+                        default:
+                            swalConfig.icon = 'info';
+                            swalConfig.confirmButtonColor = '#6c757d';
+                            swalConfig.timer = 3000;
+                            swalConfig.showConfirmButton = false;
+                            swalConfig.toast = true;
+                            swalConfig.position = 'top-end';
                     }
+
+                    Swal.fire(swalConfig);
                 }
 
                 // Function to print ticket using hidden iframe
@@ -785,7 +856,32 @@
                     // Escape to reset form
                     if (e.key === 'Escape') {
                         e.preventDefault();
-                        resetForm();
+
+                        // Check if form has any data before showing confirmation
+                        const hasData = licensePlateInput.value.trim() !== '' || vehicleTypeInput.value !==
+                            '' || document.getElementById('notes').value.trim() !== '';
+
+                        if (hasData) {
+                            Swal.fire({
+                                icon: 'question',
+                                title: 'Reset Form?',
+                                text: 'Apakah Anda yakin ingin menghapus semua data yang telah diisi?',
+                                showCancelButton: true,
+                                confirmButtonText: 'Ya, Reset',
+                                cancelButtonText: 'Batal',
+                                confirmButtonColor: '#dc3545',
+                                cancelButtonColor: '#6c757d',
+                                customClass: {
+                                    container: 'swal2-container-custom'
+                                }
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    resetForm();
+                                }
+                            });
+                        } else {
+                            resetForm();
+                        }
                     }
 
                     // Ctrl + P for manual print (if manual print button exists)
@@ -825,13 +921,6 @@
 
                 // Run browser detection
                 detectPrintCapabilities();
-
-                // Show setup info with better messaging
-                setTimeout(() => {
-                    showNotification('info', 'Sistem Siap',
-                        'Form siap digunakan. Print otomatis menggunakan iframe tersembunyi untuk pengalaman terbaik.'
-                        );
-                }, 1000);
             });
         </script>
     @endpush

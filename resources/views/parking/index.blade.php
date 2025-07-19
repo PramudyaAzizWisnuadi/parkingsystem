@@ -42,10 +42,11 @@
                                             class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-eye"></i> <span class="d-none d-lg-inline">Detail</span>
                                         </a>
-                                        <a href="{{ route('parking.print', $transaction->id) }}"
-                                            class="btn btn-sm btn-outline-success" target="_blank">
-                                            <i class="fas fa-print"></i> <span class="d-none d-lg-inline">Print</span>
-                                        </a>
+                                        <button
+                                            onclick="printCopy('{{ route('parking.print', ['parking' => $transaction->id, 'copy' => true]) }}', '{{ $transaction->ticket_number }}')"
+                                            class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-print"></i> <span class="d-none d-lg-inline">Print Copy</span>
+                                        </button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -78,6 +79,120 @@
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
 
     <script>
+        // Global flag to prevent double execution
+        let isPrinting = false;
+
+        // Function to print ticket copy using hidden iframe (PWA style)
+        function printCopy(printUrl, ticketNumber) {
+            if (isPrinting) return;
+            isPrinting = true;
+
+            showNotification('info', 'Menyiapkan Print...',
+                `Memproses tiket ${ticketNumber} untuk print copy.`);
+
+            // Remove existing print iframe if any
+            const existingIframe = document.getElementById('printIframe');
+            if (existingIframe) {
+                existingIframe.remove();
+            }
+
+            // Create hidden iframe for printing
+            const printIframe = document.createElement('iframe');
+            printIframe.id = 'printIframe';
+            printIframe.style.position = 'absolute';
+            printIframe.style.top = '-9999px';
+            printIframe.style.left = '-9999px';
+            printIframe.style.width = '1px';
+            printIframe.style.height = '1px';
+            printIframe.style.border = 'none';
+            printIframe.style.visibility = 'hidden';
+            printIframe.style.opacity = '0';
+
+            // Add iframe to document
+            document.body.appendChild(printIframe);
+
+            // Set timeout for loading
+            let loadTimeout = setTimeout(() => {
+                showNotification('error', 'Timeout Print',
+                    'Print memerlukan waktu terlalu lama. Silakan coba lagi.');
+                if (printIframe.parentNode) {
+                    printIframe.remove();
+                }
+                isPrinting = false;
+            }, 10000); // 10 second timeout
+
+            // Load the ticket content
+            printIframe.onload = function() {
+                clearTimeout(loadTimeout);
+
+                try {
+                    // Wait a moment for content to fully load
+                    setTimeout(() => {
+                        try {
+                            // Trigger print from iframe
+                            printIframe.contentWindow.print();
+
+                            showNotification('success', 'Print Berhasil',
+                                'Tiket copy sedang dikirim ke printer.');
+
+                            // Cleanup after print
+                            setTimeout(() => {
+                                if (printIframe.parentNode) {
+                                    printIframe.remove();
+                                }
+                                isPrinting = false;
+                            }, 2000);
+                        } catch (printError) {
+                            console.error('Print error:', printError);
+                            showNotification('warning', 'Print Manual',
+                                'Auto print tidak tersedia. Membuka di tab baru...');
+                            // Fallback to opening in new tab
+                            window.open(printUrl, '_blank');
+                            if (printIframe.parentNode) {
+                                printIframe.remove();
+                            }
+                            isPrinting = false;
+                        }
+                    }, 1500);
+                } catch (error) {
+                    clearTimeout(loadTimeout);
+                    console.error('Print setup error:', error);
+                    showNotification('error', 'Print Error',
+                        'Terjadi kesalahan. Membuka di tab baru...');
+                    // Fallback to opening in new tab
+                    window.open(printUrl, '_blank');
+                    if (printIframe.parentNode) {
+                        printIframe.remove();
+                    }
+                    isPrinting = false;
+                }
+            };
+
+            // Set iframe source
+            printIframe.src = printUrl;
+        }
+
+        // Notification system using SweetAlert2 toast
+        function showNotification(type, title, message) {
+            const icon = type === 'success' ? 'success' :
+                type === 'error' ? 'error' :
+                type === 'warning' ? 'warning' : 'info';
+
+            const toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true
+            });
+
+            toast.fire({
+                icon: icon,
+                title: title,
+                text: message
+            });
+        }
+
         $(document).ready(function() {
             $('#transactionsTable').DataTable({
                 responsive: true,

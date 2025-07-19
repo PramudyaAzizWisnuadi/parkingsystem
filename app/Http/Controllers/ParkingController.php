@@ -85,7 +85,8 @@ class ParkingController extends Controller
 
     public function printTicket(ParkingTransaction $parking, Request $request)
     {
-        $view = view('parking.ticket', compact('parking'));
+        $isCopy = $request->has('copy') || $request->get('copy', false);
+        $view = view('parking.ticket', compact('parking', 'isCopy'));
 
         // If download parameter is present, return as downloadable HTML
         if ($request->has('download')) {

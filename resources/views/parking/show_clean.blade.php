@@ -259,7 +259,7 @@
             }, 800);
         }
 
-        // Event binding
+        // Event binding - SINGLE INSTANCE ONLY
         document.addEventListener('DOMContentLoaded', function() {
             const printBtn1 = document.getElementById('printBtn1');
             const printBtn2 = document.getElementById('printBtn2');

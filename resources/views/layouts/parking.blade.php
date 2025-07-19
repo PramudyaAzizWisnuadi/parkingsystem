@@ -23,6 +23,9 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
         <link href="{{ asset('css/favicon-enhancements.css') }}" rel="stylesheet">
 
+        <!-- SweetAlert2 -->
+        <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
         <!-- PWA -->
         <meta name="theme-color" content="#6777ef">
         <link rel="apple-touch-icon" href="{{ asset('logo.PNG') }}">
@@ -388,6 +391,8 @@
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- SweetAlert2 -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="{{ asset('/sw.js') }}"></script>
         <script>
             if (!navigator.serviceWorker.controller) {

@@ -91,7 +91,7 @@
 
         // Function to print ticket using hidden iframe (same as create.blade.php)
         function printTicket(printUrl, ticketNumber) {
-            showNotification('info', 'Menyiapkan Print...',
+            showNotification('info', 'Menyiapkan Print...', 
                 `Memproses tiket ${ticketNumber} untuk print copy.`);
 
             // Remove existing print iframe if any
@@ -198,7 +198,7 @@
 
             const printUrl = '{{ route('parking.print', ['parking' => $parking->id, 'copy' => true]) }}';
             const ticketNumber = '{{ $parking->ticket_number }}';
-
+            
             printTicket(printUrl, ticketNumber);
         }
 
@@ -263,14 +263,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             const printBtn1 = document.getElementById('printBtn1');
             const printBtn2 = document.getElementById('printBtn2');
-
+            
             if (printBtn1) {
                 printBtn1.addEventListener('click', function(e) {
                     e.preventDefault();
                     printTicketFromDetail();
                 });
             }
-
+            
             if (printBtn2) {
                 printBtn2.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -284,17 +284,13 @@
                 buttons.forEach(button => {
                     button.addEventListener('touchstart', function() {
                         this.style.transform = 'scale(0.95)';
-                    }, {
-                        passive: true
-                    });
-
+                    }, { passive: true });
+                    
                     button.addEventListener('touchend', function() {
                         setTimeout(() => {
                             this.style.transform = '';
                         }, 150);
-                    }, {
-                        passive: true
-                    });
+                    }, { passive: true });
                 });
             }
         });
@@ -307,13 +303,8 @@
         }
 
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Mobile-friendly SweetAlert */
@@ -322,15 +313,15 @@
                 width: 90% !important;
                 max-width: 350px !important;
             }
-
+            
             .swal2-title {
                 font-size: 20px !important;
             }
-
+            
             .swal2-content {
                 font-size: 16px !important;
             }
-
+            
             .swal2-confirm,
             .swal2-deny {
                 font-size: 16px !important;
