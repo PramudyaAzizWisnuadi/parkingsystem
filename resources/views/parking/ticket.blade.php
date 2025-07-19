@@ -693,238 +693,233 @@
 
         <div class="no-print">
             <div class="action-buttons">
-                <button onclick="printTicket();" class="btn-primary">
-                    <span class="icon icon-print"></span>
-                    Print Tiket
-                </button>
-                <a href="{{ route('parking.index') }}" class="btn-secondary">
-                    <span class="icon icon-back"></span>
-                    Kembali ke Daftar
-                </a>
                 <a href="{{ route('parking.create') }}" class="btn-primary">
                     <span class="icon icon-new"></span>
                     Transaksi Baru
                 </a>
+                <button onclick="printTicket();" class="btn-primary">
+                    <span class="icon icon-print"></span>
+                    Print Tiket
+                </button>
             </div>
-        </div>
 
-        <script>
-            // Auto print when page loads from redirect after create
-            @if (session('auto_print') || config('ticket.auto_print.enabled', false))
-                window.onload = function() {
-                    // Add a small delay for mobile devices
-                    const delay = /Mobi|Android/i.test(navigator.userAgent) ? 1000 :
-                        {{ config('ticket.auto_print.delay', 500) }};
+            <script>
+                // Auto print when page loads from redirect after create
+                @if (session('auto_print') || config('ticket.auto_print.enabled', false))
+                    window.onload = function() {
+                        // Add a small delay for mobile devices
+                        const delay = /Mobi|Android/i.test(navigator.userAgent) ? 1000 :
+                            {{ config('ticket.auto_print.delay', 500) }};
 
-                    setTimeout(function() {
-                        window.print();
-
-                        // After print dialog, show options with improved mobile experience
                         setTimeout(function() {
-                            Swal.fire({
-                                icon: 'question',
-                                title: 'Tiket Sudah Dicetak?',
-                                text: 'Pilih tindakan selanjutnya:',
-                                showDenyButton: true,
-                                showCancelButton: false,
-                                confirmButtonText: 'Transaksi Baru',
-                                denyButtonText: 'Kembali ke Daftar',
-                                confirmButtonColor: '#28a745',
-                                denyButtonColor: '#6c757d',
-                                customClass: {
-                                    container: 'swal2-container-custom',
-                                    popup: 'swal2-mobile-popup'
-                                },
-                                // Mobile-friendly settings
-                                width: window.innerWidth < 768 ? '90%' : '400px',
-                                showClass: {
-                                    popup: 'animate__animated animate__fadeInUp animate__faster'
-                                },
-                                hideClass: {
-                                    popup: 'animate__animated animate__fadeOutDown animate__faster'
-                                }
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    showLoadingAndRedirect('{{ route('parking.create') }}',
-                                        'Membuat transaksi baru...');
-                                } else if (result.isDenied) {
-                                    showLoadingAndRedirect('{{ route('parking.index') }}',
-                                        'Kembali ke daftar...');
-                                }
-                            });
-                        }, 1000);
-                    }, delay);
-                };
-            @endif
+                            window.print();
 
-            // Enhanced print function with mobile considerations
-            function printTicket() {
-                // Show loading state on mobile
-                if (window.innerWidth < 768) {
-                    const printBtn = document.querySelector('.btn-primary');
-                    const originalText = printBtn.innerHTML;
+                            // After print dialog, show options with improved mobile experience
+                            setTimeout(function() {
+                                Swal.fire({
+                                    icon: 'question',
+                                    title: 'Tiket Sudah Dicetak?',
+                                    text: 'Pilih tindakan selanjutnya:',
+                                    showDenyButton: true,
+                                    showCancelButton: false,
+                                    confirmButtonText: 'Transaksi Baru',
+                                    denyButtonText: 'Kembali ke Daftar',
+                                    confirmButtonColor: '#28a745',
+                                    denyButtonColor: '#6c757d',
+                                    customClass: {
+                                        container: 'swal2-container-custom',
+                                        popup: 'swal2-mobile-popup'
+                                    },
+                                    // Mobile-friendly settings
+                                    width: window.innerWidth < 768 ? '90%' : '400px',
+                                    showClass: {
+                                        popup: 'animate__animated animate__fadeInUp animate__faster'
+                                    },
+                                    hideClass: {
+                                        popup: 'animate__animated animate__fadeOutDown animate__faster'
+                                    }
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        showLoadingAndRedirect('{{ route('parking.create') }}',
+                                            'Membuat transaksi baru...');
+                                    } else if (result.isDenied) {
+                                        showLoadingAndRedirect('{{ route('parking.index') }}',
+                                            'Kembali ke daftar...');
+                                    }
+                                });
+                            }, 1000);
+                        }, delay);
+                    };
+                @endif
 
-                    printBtn.innerHTML =
-                        '<span style="display: inline-block; animation: spin 1s linear infinite;">⚡</span> Printing...';
-                    printBtn.disabled = true;
+                // Enhanced print function with mobile considerations
+                function printTicket() {
+                    // Show loading state on mobile
+                    if (window.innerWidth < 768) {
+                        const printBtn = document.querySelector('.btn-primary');
+                        const originalText = printBtn.innerHTML;
+
+                        printBtn.innerHTML =
+                            '<span style="display: inline-block; animation: spin 1s linear infinite;">⚡</span> Printing...';
+                        printBtn.disabled = true;
+
+                        setTimeout(() => {
+                            window.print();
+
+                            // Reset button after print dialog
+                            setTimeout(() => {
+                                printBtn.innerHTML = originalText;
+                                printBtn.disabled = false;
+                            }, 1000);
+                        }, 300);
+                    } else {
+                        window.print();
+                    }
+                }
+
+                // Loading and redirect function
+                function showLoadingAndRedirect(url, message) {
+                    Swal.fire({
+                        title: 'Mohon Tunggu',
+                        text: message,
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
 
                     setTimeout(() => {
-                        window.print();
-
-                        // Reset button after print dialog
-                        setTimeout(() => {
-                            printBtn.innerHTML = originalText;
-                            printBtn.disabled = false;
-                        }, 1000);
-                    }, 300);
-                } else {
-                    window.print();
+                        window.location.href = url;
+                    }, 800);
                 }
-            }
 
-            // Loading and redirect function
-            function showLoadingAndRedirect(url, message) {
-                Swal.fire({
-                    title: 'Mohon Tunggu',
-                    text: message,
-                    icon: 'info',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    showConfirmButton: false,
-                    didOpen: () => {
-                        Swal.showLoading();
+                // Handle print completion with mobile-friendly feedback
+                window.addEventListener('beforeprint', function() {
+                    console.log('Printing started...');
+
+                    // Only hide mobile header during print, keep ticket content visible
+                    const mobileHeader = document.querySelector('.mobile-header');
+                    if (mobileHeader) {
+                        mobileHeader.style.display = 'none';
+                    }
+
+                    // Ensure ticket content is visible for print
+                    const ticketContainer = document.querySelector('.ticket-container');
+                    const ticket = document.querySelector('.ticket');
+                    if (ticketContainer) {
+                        ticketContainer.style.display = 'block';
+                        ticketContainer.style.visibility = 'visible';
+                    }
+                    if (ticket) {
+                        ticket.style.display = 'block';
+                        ticket.style.visibility = 'visible';
                     }
                 });
 
-                setTimeout(() => {
-                    window.location.href = url;
-                }, 800);
-            }
+                window.addEventListener('afterprint', function() {
+                    console.log('Printing completed or cancelled');
 
-            // Handle print completion with mobile-friendly feedback
-            window.addEventListener('beforeprint', function() {
-                console.log('Printing started...');
-
-                // Only hide mobile header during print, keep ticket content visible
-                const mobileHeader = document.querySelector('.mobile-header');
-                if (mobileHeader) {
-                    mobileHeader.style.display = 'none';
-                }
-
-                // Ensure ticket content is visible for print
-                const ticketContainer = document.querySelector('.ticket-container');
-                const ticket = document.querySelector('.ticket');
-                if (ticketContainer) {
-                    ticketContainer.style.display = 'block';
-                    ticketContainer.style.visibility = 'visible';
-                }
-                if (ticket) {
-                    ticket.style.display = 'block';
-                    ticket.style.visibility = 'visible';
-                }
-            });
-
-            window.addEventListener('afterprint', function() {
-                console.log('Printing completed or cancelled');
-
-                // Show mobile elements again after print
-                const mobileHeader = document.querySelector('.mobile-header');
-                if (mobileHeader) {
-                    mobileHeader.style.display = '';
-                }
-
-                const ticketContainer = document.querySelector('.ticket-container');
-                if (ticketContainer) {
-                    ticketContainer.style.display = '';
-                    ticketContainer.style.visibility = '';
-                }
-
-                // Show completion message on mobile
-                if (window.innerWidth < 768) {
-                    const toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        timerProgressBar: true
-                    });
-
-                    toast.fire({
-                        icon: 'success',
-                        title: 'Print selesai!'
-                    });
-                }
-            });
-
-            // Enhanced mobile touch handling
-            document.addEventListener('DOMContentLoaded', function() {
-                // Add touch feedback for mobile buttons
-                if ('ontouchstart' in window) {
-                    const buttons = document.querySelectorAll('.action-buttons button, .action-buttons a');
-
-                    buttons.forEach(button => {
-                        button.addEventListener('touchstart', function() {
-                            this.style.transform = 'scale(0.95)';
-                        });
-
-                        button.addEventListener('touchend', function() {
-                            setTimeout(() => {
-                                this.style.transform = '';
-                            }, 150);
-                        });
-                    });
-                }
-
-                // Prevent accidental zoom on double tap
-                let lastTouchEnd = 0;
-                document.addEventListener('touchend', function(event) {
-                    const now = (new Date()).getTime();
-                    if (now - lastTouchEnd <= 300) {
-                        event.preventDefault();
+                    // Show mobile elements again after print
+                    const mobileHeader = document.querySelector('.mobile-header');
+                    if (mobileHeader) {
+                        mobileHeader.style.display = '';
                     }
-                    lastTouchEnd = now;
-                }, false);
 
-                // Add swipe gestures for navigation (mobile only)
-                if (window.innerWidth < 768) {
-                    let startX, startY;
+                    const ticketContainer = document.querySelector('.ticket-container');
+                    if (ticketContainer) {
+                        ticketContainer.style.display = '';
+                        ticketContainer.style.visibility = '';
+                    }
 
-                    document.addEventListener('touchstart', function(e) {
-                        startX = e.touches[0].clientX;
-                        startY = e.touches[0].clientY;
-                    });
+                    // Show completion message on mobile
+                    if (window.innerWidth < 768) {
+                        const toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
 
-                    document.addEventListener('touchmove', function(e) {
-                        e.preventDefault(); // Prevent scrolling during swipe
-                    }, {
-                        passive: false
-                    });
+                        toast.fire({
+                            icon: 'success',
+                            title: 'Print selesai!'
+                        });
+                    }
+                });
 
-                    document.addEventListener('touchend', function(e) {
-                        if (!startX || !startY) return;
+                // Enhanced mobile touch handling
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Add touch feedback for mobile buttons
+                    if ('ontouchstart' in window) {
+                        const buttons = document.querySelectorAll('.action-buttons button, .action-buttons a');
 
-                        const endX = e.changedTouches[0].clientX;
-                        const endY = e.changedTouches[0].clientY;
+                        buttons.forEach(button => {
+                            button.addEventListener('touchstart', function() {
+                                this.style.transform = 'scale(0.95)';
+                            });
 
-                        const diffX = startX - endX;
-                        const diffY = startY - endY;
+                            button.addEventListener('touchend', function() {
+                                setTimeout(() => {
+                                    this.style.transform = '';
+                                }, 150);
+                            });
+                        });
+                    }
 
-                        // Swipe right to go back
-                        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
-                            if (diffX < 0) { // Swipe right
-                                showLoadingAndRedirect('{{ route('parking.index') }}', 'Kembali ke daftar...');
-                            }
+                    // Prevent accidental zoom on double tap
+                    let lastTouchEnd = 0;
+                    document.addEventListener('touchend', function(event) {
+                        const now = (new Date()).getTime();
+                        if (now - lastTouchEnd <= 300) {
+                            event.preventDefault();
                         }
+                        lastTouchEnd = now;
+                    }, false);
 
-                        startX = null;
-                        startY = null;
-                    });
-                }
-            });
+                    // Add swipe gestures for navigation (mobile only)
+                    if (window.innerWidth < 768) {
+                        let startX, startY;
 
-            // CSS animation for spinning icon
-            const style = document.createElement('style');
-            style.textContent = `
+                        document.addEventListener('touchstart', function(e) {
+                            startX = e.touches[0].clientX;
+                            startY = e.touches[0].clientY;
+                        });
+
+                        document.addEventListener('touchmove', function(e) {
+                            e.preventDefault(); // Prevent scrolling during swipe
+                        }, {
+                            passive: false
+                        });
+
+                        document.addEventListener('touchend', function(e) {
+                            if (!startX || !startY) return;
+
+                            const endX = e.changedTouches[0].clientX;
+                            const endY = e.changedTouches[0].clientY;
+
+                            const diffX = startX - endX;
+                            const diffY = startY - endY;
+
+                            // Swipe right to go back
+                            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                                if (diffX < 0) { // Swipe right
+                                    showLoadingAndRedirect('{{ route('parking.index') }}', 'Kembali ke daftar...');
+                                }
+                            }
+
+                            startX = null;
+                            startY = null;
+                        });
+                    }
+                });
+
+                // CSS animation for spinning icon
+                const style = document.createElement('style');
+                style.textContent = `
                 @keyframes spin {
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }
@@ -956,8 +951,8 @@
                     }
                 }
             `;
-            document.head.appendChild(style);
-        </script>
+                document.head.appendChild(style);
+            </script>
     </body>
 
 </html>
