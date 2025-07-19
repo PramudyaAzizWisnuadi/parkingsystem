@@ -28,20 +28,54 @@ class ParkingController extends Controller
 
     public function store(StoreParkingTransactionRequest $request)
     {
-        $vehicleType = VehicleType::find($request->vehicle_type_id);
+        try {
+            $vehicleType = VehicleType::find($request->vehicle_type_id);
 
-        $transaction = ParkingTransaction::create([
-            'license_plate' => ParkingTransaction::formatLicensePlate($request->license_plate),
-            'vehicle_type_id' => $request->vehicle_type_id,
-            'amount' => $vehicleType->flat_rate,
-            'entry_time' => Carbon::now(),
-            'notes' => $request->notes
-        ]);
+            if (!$vehicleType) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Jenis kendaraan tidak ditemukan.'
+                    ], 400);
+                }
+                return redirect()->back()->withErrors(['vehicle_type_id' => 'Jenis kendaraan tidak ditemukan.']);
+            }
 
-        // Redirect to print page with auto-print
-        return redirect()->route('parking.print', $transaction->id)
-            ->with('success', 'Transaksi parkir berhasil dibuat. Tiket nomor: ' . $transaction->ticket_number)
-            ->with('auto_print', true);
+            $transaction = ParkingTransaction::create([
+                'license_plate' => ParkingTransaction::formatLicensePlate($request->license_plate),
+                'vehicle_type_id' => $request->vehicle_type_id,
+                'amount' => $vehicleType->flat_rate,
+                'entry_time' => Carbon::now(),
+                'notes' => $request->notes
+            ]);
+
+            // Check if request is AJAX for auto print
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Transaksi parkir berhasil dibuat. Tiket nomor: ' . $transaction->ticket_number,
+                    'ticket_id' => $transaction->id,
+                    'ticket_number' => $transaction->ticket_number,
+                    'print_url' => route('parking.print', $transaction->id)
+                ]);
+            }
+
+            // Redirect to print page with auto-print (fallback for non-AJAX)
+            return redirect()->route('parking.print', $transaction->id)
+                ->with('success', 'Transaksi parkir berhasil dibuat. Tiket nomor: ' . $transaction->ticket_number)
+                ->with('auto_print', true);
+        } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan saat memproses transaksi: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['error' => 'Terjadi kesalahan saat memproses transaksi.']);
+        }
     }
 
     public function show(ParkingTransaction $parking)
@@ -49,9 +83,23 @@ class ParkingController extends Controller
         return view('parking.show', compact('parking'));
     }
 
-    public function printTicket(ParkingTransaction $parking)
+    public function printTicket(ParkingTransaction $parking, Request $request)
     {
-        return view('parking.ticket', compact('parking'));
+        $view = view('parking.ticket', compact('parking'));
+
+        // If download parameter is present, return as downloadable HTML
+        if ($request->has('download')) {
+            $html = $view->render();
+
+            return response($html)
+                ->header('Content-Type', 'text/html')
+                ->header('Content-Disposition', 'attachment; filename="tiket-' . $parking->ticket_number . '.html"')
+                ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                ->header('Pragma', 'no-cache')
+                ->header('Expires', '0');
+        }
+
+        return $view;
     }
     public function dashboard()
     {

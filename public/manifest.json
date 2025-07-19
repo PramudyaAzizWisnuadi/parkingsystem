@@ -1,65 +1,17 @@
 {
-    "name": "MD Parking System",
-    "short_name": "MD Parking",
-    "description": "Sistem Manajemen Parkir Modern",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#667eea",
-    "orientation": "portrait-primary",
-    "scope": "/",
-    "lang": "id",
-    "categories": ["business", "productivity"],
+    "name": "Laravel Package Tutorial",
+    "short_name": "LPT",
+    "start_url": "/index.php",
+    "background_color": "#6777ef",
+    "description": "Tutorial of Laravel Package",
+    "display": "fullscreen",
+    "theme_color": "#6777ef",
     "icons": [
         {
-            "src": "/favicon-16x16.png",
-            "sizes": "16x16",
+            "src": "logo.png",
+            "sizes": "512x512",
             "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/favicon-32x32.png",
-            "sizes": "32x32",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/apple-touch-icon.png",
-            "sizes": "180x180",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/favicon.svg",
-            "sizes": "any",
-            "type": "image/svg+xml",
             "purpose": "any maskable"
-        }
-    ],
-    "shortcuts": [
-        {
-            "name": "Kendaraan Masuk",
-            "short_name": "Masuk",
-            "description": "Input kendaraan masuk parkir",
-            "url": "/parking/create",
-            "icons": [
-                {
-                    "src": "/favicon-32x32.png",
-                    "sizes": "32x32"
-                }
-            ]
-        },
-        {
-            "name": "Daftar Parkir",
-            "short_name": "Daftar",
-            "description": "Lihat daftar kendaraan parkir",
-            "url": "/parking",
-            "icons": [
-                {
-                    "src": "/favicon-32x32.png",
-                    "sizes": "32x32"
-                }
-            ]
         }
     ]
 }

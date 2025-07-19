@@ -5,25 +5,28 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>@yield('title', config('app.name'))</title>
-        
+
         <!-- Favicon -->
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
         <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
         <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
         <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
-        
+
         <!-- Theme and app metadata -->
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="theme-color" content="#667eea">
         <meta name="application-name" content="{{ config('app.name') }}">
         <meta name="description" content="Sistem Manajemen Parkir - {{ config('app.name') }}">
-        
+
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
         <link href="{{ asset('css/favicon-enhancements.css') }}" rel="stylesheet">
-        
-        <!-- PWA Manifest -->
-        <link rel="manifest" href="{{ asset('manifest.json') }}">
+
+        <!-- PWA -->
+        <meta name="theme-color" content="#6777ef">
+        <link rel="apple-touch-icon" href="{{ asset('logo.PNG') }}">
+        <link rel="manifest" href="{{ asset('/manifest.json') }}">
         <style>
             .navbar-brand {
                 font-weight: bold;
@@ -346,7 +349,8 @@
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}"
                                             href="{{ route('reports.index') }}">
-                                            <i class="fas fa-chart-bar"></i> <span class="d-none d-md-inline">Laporan</span>
+                                            <i class="fas fa-chart-bar"></i> <span
+                                                class="d-none d-md-inline">Laporan</span>
                                         </a>
                                     </li>
                                     <li class="nav-item">
@@ -384,6 +388,14 @@
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="{{ asset('/sw.js') }}"></script>
+        <script>
+            if (!navigator.serviceWorker.controller) {
+                navigator.serviceWorker.register("/sw.js").then(function(reg) {
+                    console.log("Service worker registered: " + reg.scope);
+                });
+            }
+        </script>
         @stack('scripts')
     </body>
 

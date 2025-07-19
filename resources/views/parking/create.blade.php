@@ -109,13 +109,31 @@
                 <div class="card-body">
                     <div class="alert alert-success">
                         <i class="fas fa-check-circle me-2"></i>
-                        <strong>Fitur Aktif:</strong> Tiket akan otomatis terprint setelah transaksi berhasil disimpan.
+                        <strong>Fitur Aktif:</strong> Tiket akan otomatis terprint tanpa membuka window/tab baru.
                     </div>
                     <small class="text-muted">
-                        <strong>Pastikan:</strong><br>
-                        • Printer sudah terhubung<br>
-                        • Kertas thermal 58mm tersedia<br>
-                        • Printer dalam status ready
+                        <strong>Proses Print:</strong><br>
+                        • Print menggunakan iframe tersembunyi<br>
+                        • Tidak mengganggu form aktif<br>
+                        • Fallback manual print jika diperlukan<br>
+                        • Auto cleanup setelah print
+                    </small>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-keyboard text-info"></i> Keyboard Shortcuts
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <small class="text-muted">
+                        <strong>F1-F4:</strong> Pilih jenis kendaraan<br>
+                        <strong>Ctrl+Enter:</strong> Submit form<br>
+                        <strong>Ctrl+P:</strong> Print manual (jika tersedia)<br>
+                        <strong>Esc:</strong> Reset form<br>
+                        <strong>Tab:</strong> Navigasi antar field
                     </small>
                 </div>
             </div>
@@ -174,6 +192,64 @@
             .vehicle-type-btn.active:hover {
                 background-color: #0b5ed7;
                 border-color: #0a58ca;
+            }
+
+            /* Auto notification styles */
+            .auto-notification {
+                animation: slideInFromTop 0.5s ease-out;
+                border-left: 4px solid;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .alert-success {
+                border-left-color: #28a745;
+            }
+
+            .alert-info {
+                border-left-color: #17a2b8;
+            }
+
+            .alert-danger {
+                border-left-color: #dc3545;
+            }
+
+            /* Hidden print iframe */
+            #printIframe {
+                position: absolute !important;
+                top: -9999px !important;
+                left: -9999px !important;
+                width: 1px !important;
+                height: 1px !important;
+                border: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+            }
+
+            @keyframes slideInFromTop {
+                from {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            /* Loading animation for submit button */
+            .btn-warning .fa-spinner {
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
             }
         </style>
 
@@ -372,23 +448,21 @@
                     licensePlateInput.value = formatLicensePlate(licensePlateInput.value);
                 }
 
-                // Form validation before submit
+                // Form validation and AJAX submission
                 document.querySelector('form').addEventListener('submit', function(e) {
+                    e.preventDefault(); // Prevent default form submission
+
                     const licensePlateValue = licensePlateInput.value.trim();
 
                     if (licensePlateValue && !validateLicensePlate(licensePlateValue)) {
-                        e.preventDefault();
                         showValidationFeedback(false);
                         licensePlateInput.focus();
-
-                        // Show alert
                         alert('Mohon masukkan plat nomor dengan format yang sesuai regulasi Indonesia!');
                         return false;
                     }
 
                     // Check if vehicle type is selected
                     if (!vehicleTypeInput.value) {
-                        e.preventDefault();
                         alert('Mohon pilih jenis kendaraan!');
                         return false;
                     }
@@ -406,25 +480,358 @@
                         submitBtn.classList.add('btn-warning');
                     }
 
-                    // Show notification
+                    // Show processing notification
+                    showNotification('info', 'Memproses transaksi...',
+                        'Tiket akan otomatis terprint setelah selesai.');
+
+                    // Prepare form data
+                    const formData = new FormData(this);
+
+                    // Submit via AJAX
+                    fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content')
+                            }
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(err => Promise.reject(err));
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                // Show success message
+                                showNotification('success', 'Transaksi Berhasil!', data.message);
+
+                                // Auto print ticket
+                                printTicket(data.print_url, data.ticket_number);
+
+                                // Reset form after short delay
+                                setTimeout(() => {
+                                    resetForm();
+                                }, 2000);
+                            } else {
+                                throw new Error(data.message ||
+                                    'Terjadi kesalahan saat memproses transaksi');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            let errorMessage = 'Terjadi kesalahan saat memproses transaksi';
+
+                            // Handle validation errors
+                            if (error.errors) {
+                                const firstError = Object.values(error.errors)[0];
+                                errorMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+                            } else if (error.message) {
+                                errorMessage = error.message;
+                            }
+
+                            showNotification('error', 'Gagal Memproses', errorMessage);
+                            resetButtonState();
+                        });
+                });
+
+                // Function to show notification
+                function showNotification(type, title, message) {
+                    // Remove existing notifications
+                    const existingNotifications = document.querySelectorAll('.auto-notification');
+                    existingNotifications.forEach(notif => notif.remove());
+
                     const notification = document.createElement('div');
-                    notification.className = 'alert alert-info mt-3';
+                    notification.className = `alert alert-${type === 'error' ? 'danger' : type} auto-notification mt-3`;
                     notification.innerHTML = `
                         <div class="d-flex align-items-center">
-                            <i class="fas fa-print me-2"></i>
+                            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
                             <div>
-                                <strong>Informasi:</strong> Setelah proses selesai, tiket akan otomatis terprint.
-                                <br><small>Pastikan printer sudah siap dan terhubung.</small>
+                                <strong>${title}</strong><br>
+                                <small>${message}</small>
                             </div>
                         </div>
                     `;
 
                     const form = document.querySelector('form');
                     form.appendChild(notification);
-                });
+
+                    // Auto remove after 5 seconds for success/info, keep error until manual action
+                    if (type !== 'error') {
+                        setTimeout(() => {
+                            if (notification.parentNode) {
+                                notification.remove();
+                            }
+                        }, 5000);
+                    }
+                }
+
+                // Function to print ticket using hidden iframe
+                function printTicket(printUrl, ticketNumber) {
+                    showNotification('info', 'Menyiapkan Print...',
+                        `Memproses tiket ${ticketNumber} untuk print otomatis.`);
+
+                    // Remove existing print iframe if any
+                    const existingIframe = document.getElementById('printIframe');
+                    if (existingIframe) {
+                        existingIframe.remove();
+                    }
+
+                    // Create hidden iframe for printing
+                    const printIframe = document.createElement('iframe');
+                    printIframe.id = 'printIframe';
+                    printIframe.style.position = 'absolute';
+                    printIframe.style.top = '-9999px';
+                    printIframe.style.left = '-9999px';
+                    printIframe.style.width = '1px';
+                    printIframe.style.height = '1px';
+                    printIframe.style.border = 'none';
+                    printIframe.style.visibility = 'hidden';
+                    printIframe.style.opacity = '0';
+
+                    // Add iframe to document
+                    document.body.appendChild(printIframe);
+
+                    // Set timeout for loading
+                    let loadTimeout = setTimeout(() => {
+                        showNotification('error', 'Timeout Print',
+                            'Print memerlukan waktu terlalu lama. Silakan print manual.');
+                        addManualPrintButton(printUrl, ticketNumber);
+                        if (printIframe.parentNode) {
+                            printIframe.remove();
+                        }
+                    }, 10000); // 10 second timeout
+
+                    // Load the ticket content
+                    printIframe.onload = function() {
+                        clearTimeout(loadTimeout);
+
+                        try {
+                            // Wait a moment for content to fully load
+                            setTimeout(() => {
+                                try {
+                                    // Check if iframe content is accessible
+                                    const iframeDoc = printIframe.contentDocument || printIframe
+                                        .contentWindow.document;
+
+                                    // Trigger print from iframe
+                                    printIframe.contentWindow.print();
+
+                                    showNotification('success', 'Print Berhasil',
+                                        'Tiket sedang dikirim ke printer. Pastikan printer sudah siap.');
+
+                                    // Remove iframe after print
+                                    setTimeout(() => {
+                                        if (printIframe.parentNode) {
+                                            printIframe.remove();
+                                        }
+                                    }, 2000);
+                                } catch (printError) {
+                                    console.error('Print error:', printError);
+                                    // Fallback to manual print button
+                                    showNotification('info', 'Print Manual',
+                                        'Auto print tidak tersedia. Gunakan tombol print manual.');
+                                    addManualPrintButton(printUrl, ticketNumber);
+                                    if (printIframe.parentNode) {
+                                        printIframe.remove();
+                                    }
+                                }
+                            }, 1500);
+                        } catch (error) {
+                            clearTimeout(loadTimeout);
+                            console.error('Print setup error:', error);
+                            showNotification('error', 'Print Error',
+                                'Terjadi kesalahan saat print. Gunakan print manual.');
+                            addManualPrintButton(printUrl, ticketNumber);
+                            if (printIframe.parentNode) {
+                                printIframe.remove();
+                            }
+                        }
+                    };
+
+                    // Handle iframe error
+                    printIframe.onerror = function() {
+                        clearTimeout(loadTimeout);
+                        showNotification('error', 'Gagal Load Tiket',
+                            'Tidak dapat memuat tiket untuk print. Gunakan print manual.');
+                        addManualPrintButton(printUrl, ticketNumber);
+                        if (printIframe.parentNode) {
+                            printIframe.remove();
+                        }
+                    };
+
+                    // Set iframe source to load the ticket
+                    printIframe.src = printUrl;
+                }
+
+                // Function to add manual print button as fallback
+                function addManualPrintButton(printUrl, ticketNumber) {
+                    // Remove existing manual print button if any
+                    const existingBtn = document.getElementById('manualPrintBtn');
+                    if (existingBtn) {
+                        existingBtn.remove();
+                    }
+
+                    // Create button container
+                    const buttonContainer = document.createElement('div');
+                    buttonContainer.id = 'manualPrintContainer';
+                    buttonContainer.className = 'mt-3 d-flex gap-2 flex-wrap';
+
+                    // Manual print button
+                    const manualPrintBtn = document.createElement('a');
+                    manualPrintBtn.id = 'manualPrintBtn';
+                    manualPrintBtn.href = printUrl;
+                    manualPrintBtn.target = '_blank';
+                    manualPrintBtn.className = 'btn btn-success btn-lg';
+                    manualPrintBtn.innerHTML = `
+                        <i class="fas fa-print"></i> Print Tiket ${ticketNumber}
+                    `;
+
+                    // Download link button (alternative)
+                    const downloadBtn = document.createElement('a');
+                    downloadBtn.href = printUrl + '?download=1';
+                    downloadBtn.target = '_blank';
+                    downloadBtn.className = 'btn btn-info btn-lg';
+                    downloadBtn.innerHTML = `
+                        <i class="fas fa-download"></i> Download
+                    `;
+
+                    // Add buttons to container
+                    buttonContainer.appendChild(manualPrintBtn);
+                    buttonContainer.appendChild(downloadBtn);
+
+                    // Insert after submit button
+                    const submitBtn = document.getElementById('submitBtn');
+                    submitBtn.parentNode.insertBefore(buttonContainer, submitBtn.nextSibling);
+
+                    // Auto remove manual print buttons after 45 seconds
+                    setTimeout(() => {
+                        if (buttonContainer.parentNode) {
+                            buttonContainer.remove();
+                        }
+                    }, 45000);
+
+                    // Add info notification about manual options
+                    showNotification('info', 'Opsi Manual Tersedia',
+                        'Gunakan tombol Print untuk membuka di tab baru atau Download untuk menyimpan tiket.');
+                }
+
+                // Function to reset form
+                function resetForm() {
+                    document.querySelector('form').reset();
+                    vehicleTypeInput.value = '';
+                    vehicleTypeButtons.forEach(btn => btn.classList.remove('active'));
+                    rateInfo.style.display = 'none';
+                    licensePlateInput.classList.remove('is-valid', 'is-invalid');
+                    const feedbackEl = document.querySelector('#license_plate + .invalid-feedback');
+                    if (feedbackEl) feedbackEl.style.display = 'none';
+
+                    // Remove manual print container if exists
+                    const manualPrintContainer = document.getElementById('manualPrintContainer');
+                    if (manualPrintContainer) {
+                        manualPrintContainer.remove();
+                    }
+
+                    // Remove print iframe if exists
+                    const printIframe = document.getElementById('printIframe');
+                    if (printIframe) {
+                        printIframe.remove();
+                    }
+
+                    resetButtonState();
+                    licensePlateInput.focus();
+
+                    showNotification('info', 'Form Reset', 'Siap untuk transaksi berikutnya.');
+                }
+
+                // Function to reset button state
+                function resetButtonState() {
+                    const submitBtn = document.getElementById('submitBtn');
+                    const submitIcon = document.getElementById('submitIcon');
+                    const submitText = document.getElementById('submitText');
+
+                    if (submitBtn && submitIcon && submitText) {
+                        submitBtn.disabled = false;
+                        submitIcon.className = 'fas fa-save';
+                        submitText.textContent = 'Proses Masuk & Print Tiket';
+                        submitBtn.classList.remove('btn-warning');
+                        submitBtn.classList.add('btn-primary');
+                    }
+                }
 
                 // Auto focus on license plate input
                 licensePlateInput.focus();
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', function(e) {
+                    // Ctrl + Enter to submit form
+                    if (e.ctrlKey && e.key === 'Enter') {
+                        e.preventDefault();
+                        document.querySelector('form').dispatchEvent(new Event('submit'));
+                    }
+
+                    // F1-F4 to select vehicle types quickly
+                    if (e.key >= 'F1' && e.key <= 'F4') {
+                        e.preventDefault();
+                        const index = parseInt(e.key.replace('F', '')) - 1;
+                        const buttons = document.querySelectorAll('.vehicle-type-btn');
+                        if (buttons[index]) {
+                            buttons[index].click();
+                        }
+                    }
+
+                    // Escape to reset form
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        resetForm();
+                    }
+
+                    // Ctrl + P for manual print (if manual print button exists)
+                    if (e.ctrlKey && e.key.toLowerCase() === 'p') {
+                        const manualPrintBtn = document.getElementById('manualPrintBtn');
+                        if (manualPrintBtn) {
+                            e.preventDefault();
+                            manualPrintBtn.click();
+                        }
+                    }
+                });
+
+                // Detect browser capabilities for print optimization
+                function detectPrintCapabilities() {
+                    try {
+                        // Test if we can access iframe content (will throw error in some browsers)
+                        const testIframe = document.createElement('iframe');
+                        testIframe.style.display = 'none';
+                        document.body.appendChild(testIframe);
+
+                        setTimeout(() => {
+                            try {
+                                const iframeDoc = testIframe.contentDocument || testIframe.contentWindow
+                                    .document;
+                                // If we can access it, iframe printing should work
+                                document.body.removeChild(testIframe);
+                            } catch (e) {
+                                // Iframe content not accessible, may need fallback
+                                document.body.removeChild(testIframe);
+                                console.warn('Iframe printing may be limited in this browser');
+                            }
+                        }, 100);
+                    } catch (e) {
+                        console.warn('Browser has limited iframe capabilities');
+                    }
+                }
+
+                // Run browser detection
+                detectPrintCapabilities();
+
+                // Show setup info with better messaging
+                setTimeout(() => {
+                    showNotification('info', 'Sistem Siap',
+                        'Form siap digunakan. Print otomatis menggunakan iframe tersembunyi untuk pengalaman terbaik.'
+                        );
+                }, 1000);
             });
         </script>
     @endpush
