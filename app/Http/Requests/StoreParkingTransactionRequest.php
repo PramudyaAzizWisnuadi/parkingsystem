@@ -24,11 +24,12 @@ class StoreParkingTransactionRequest extends FormRequest
     {
         return [
             'license_plate' => [
-                'required',
+                'nullable',
                 'string',
                 'max:20',
                 function ($attribute, $value, $fail) {
-                    if (!ParkingTransaction::validateLicensePlate($value)) {
+                    // Hanya validasi jika value ada (tidak kosong)
+                    if ($value && !ParkingTransaction::validateLicensePlate($value)) {
                         $fail('Format plat nomor tidak valid. Contoh format yang benar: B 1234 ABC untuk mobil, B 1234 AB untuk motor.');
                     }
                 }
@@ -46,7 +47,6 @@ class StoreParkingTransactionRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'license_plate.required' => 'Plat nomor kendaraan wajib diisi.',
             'license_plate.string' => 'Plat nomor kendaraan harus berupa teks.',
             'license_plate.max' => 'Plat nomor kendaraan tidak boleh lebih dari 20 karakter.',
             'vehicle_type_id.required' => 'Jenis kendaraan wajib dipilih.',

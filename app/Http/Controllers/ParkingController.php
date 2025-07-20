@@ -42,7 +42,7 @@ class ParkingController extends Controller
             }
 
             $transaction = ParkingTransaction::create([
-                'license_plate' => ParkingTransaction::formatLicensePlate($request->license_plate),
+                'license_plate' => $request->license_plate ? ParkingTransaction::formatLicensePlate($request->license_plate) : null,
                 'vehicle_type_id' => $request->vehicle_type_id,
                 'amount' => $vehicleType->flat_rate,
                 'entry_time' => Carbon::now(),

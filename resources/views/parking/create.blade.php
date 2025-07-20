@@ -21,18 +21,19 @@
                     <form action="{{ route('parking.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label for="license_plate" class="form-label">Plat Nomor Kendaraan</label>
+                            <label for="license_plate" class="form-label">Plat Nomor Kendaraan <small class="text-muted">(Opsional)</small></label>
                             <input type="text"
                                 class="form-control form-control-lg @error('license_plate') is-invalid @enderror"
                                 id="license_plate" name="license_plate" value="{{ old('license_plate') }}"
-                                placeholder="Contoh: K 1234 ABC, K 5678 EF, atau AD 9999 AB" required autocomplete="off"
+                                placeholder="Contoh: K 1234 ABC, K 5678 EF (Opsional - kosongkan jika tidak diketahui)" autocomplete="off"
                                 maxlength="12" style="text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">
                             @error('license_plate')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                             <div class="form-text">
                                 <small class="text-muted">
-                                    <strong>Format yang valid:</strong><br>
+                                    <strong>Plat nomor bersifat opsional.</strong> Kosongkan jika tidak diketahui.<br>
+                                    <strong>Format yang valid (jika diisi):</strong><br>
                                     • Wilayah 1 huruf: K 1234 ABC<br>
                                     • Wilayah 2 huruf: AD 1234 AB<br>
                                     • Otomatis diformat saat mengetik
@@ -290,6 +291,26 @@
                 const rateAmount = document.getElementById('rate-amount');
                 const licensePlateInput = document.getElementById('license_plate');
 
+                // Pastikan hanya form parking yang diproses, bukan form logout atau lainnya
+                const parkingForm = document.querySelector('form[action*="parking"]');
+                if (!parkingForm) {
+                    console.warn('Parking form not found');
+                    return;
+                }
+                
+                // Log untuk debugging
+                console.log('Parking form found:', parkingForm.action);
+                
+                // Pastikan form logout tidak terganggu dengan menambahkan event listener khusus
+                document.addEventListener('submit', function(e) {
+                    const form = e.target;
+                    if (form.tagName === 'FORM' && !form.action.includes('parking')) {
+                        console.log('Non-parking form submitted:', form.action);
+                        // Biarkan form non-parking berjalan normal tanpa interference
+                        return true;
+                    }
+                }, true); // Use capture phase
+
                 // License plate formatting function
                 function formatLicensePlate(value) {
                     // Remove all non-alphanumeric characters except spaces
@@ -477,8 +498,13 @@
                     licensePlateInput.value = formatLicensePlate(licensePlateInput.value);
                 }
 
-                // Form validation and AJAX submission
-                document.querySelector('form').addEventListener('submit', function(e) {
+                // Form validation dan AJAX submission - hanya untuk parking form
+                parkingForm.addEventListener('submit', function(e) {
+                    // Double check - pastikan ini form parking
+                    if (!this.action.includes('parking')) {
+                        return; // Biarkan form lain berjalan normal
+                    }
+                    
                     // Hanya validasi jika submit dari tombol submit, bukan dari link lain (misal logout)
                     // Cek activeElement adalah tombol submit di form ini
                     const activeEl = document.activeElement;
@@ -492,13 +518,14 @@
 
                         const licensePlateValue = licensePlateInput.value.trim();
 
+                        // Validasi plat nomor hanya jika diisi
                         if (licensePlateValue && !validateLicensePlate(licensePlateValue)) {
                             showValidationFeedback(false);
                             licensePlateInput.focus();
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Format Plat Nomor Tidak Valid',
-                                text: 'Mohon masukkan plat nomor dengan format yang sesuai regulasi Indonesia!',
+                                text: 'Mohon masukkan plat nomor dengan format yang sesuai regulasi Indonesia atau kosongkan jika tidak diketahui!',
                                 confirmButtonText: 'OK',
                                 confirmButtonColor: '#d33',
                                 customClass: {
@@ -791,7 +818,10 @@
 
                 // Function to reset form
                 function resetForm() {
-                    document.querySelector('form').reset();
+                    const parkingForm = document.querySelector('form[action*="parking"]');
+                    if (parkingForm) {
+                        parkingForm.reset();
+                    }
                     vehicleTypeInput.value = '';
                     vehicleTypeButtons.forEach(btn => btn.classList.remove('active'));
                     rateInfo.style.display = 'none';
@@ -837,10 +867,12 @@
 
                 // Keyboard shortcuts
                 document.addEventListener('keydown', function(e) {
-                    // Ctrl + Enter to submit form
+                    // Ctrl + Enter to submit parking form
                     if (e.ctrlKey && e.key === 'Enter') {
                         e.preventDefault();
-                        document.querySelector('form').dispatchEvent(new Event('submit'));
+                        if (parkingForm) {
+                            parkingForm.dispatchEvent(new Event('submit'));
+                        }
                     }
 
                     // F1-F4 to select vehicle types quickly

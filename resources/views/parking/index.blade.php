@@ -33,7 +33,7 @@
                             @foreach ($transactions as $transaction)
                                 <tr>
                                     <td>{{ $transaction->ticket_number }}</td>
-                                    <td>{{ $transaction->license_plate }}</td>
+                                    <td>{{ $transaction->license_plate ?: '-' }}</td>
                                     <td>{{ $transaction->vehicleType->name }}</td>
                                     <td>Rp {{ number_format($transaction->amount, 0, ',', '.') }}</td>
                                     <td>{{ $transaction->formatted_entry_time }}</td>

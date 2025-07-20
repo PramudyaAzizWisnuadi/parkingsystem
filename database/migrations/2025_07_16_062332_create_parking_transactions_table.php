@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('parking_transactions', function (Blueprint $table) {
             $table->id();
             $table->string('ticket_number')->unique(); // Nomor tiket parkir
-            $table->string('license_plate'); // Plat nomor kendaraan
+            $table->string('license_plate')->nullable(); // Plat nomor kendaraan (opsional)
             $table->foreignId('vehicle_type_id')->constrained('vehicle_types');
             $table->decimal('amount', 10, 2); // Jumlah yang dibayar
             $table->timestamp('entry_time'); // Waktu masuk

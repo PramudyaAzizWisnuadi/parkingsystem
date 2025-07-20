@@ -657,10 +657,12 @@
                             <td>{{ config('ticket.labels.ticket', 'No. Tiket') }}</td>
                             <td>{{ $parking->ticket_number }}</td>
                         </tr>
+                        @if(!empty($parking->license_plate))
                         <tr>
                             <td>{{ config('ticket.labels.license_plate', 'Plat Nomor') }}</td>
                             <td>{{ $parking->license_plate }}</td>
                         </tr>
+                        @endif
                         <tr>
                             <td>{{ config('ticket.labels.vehicle_type', 'Jenis Kendaraan') }}</td>
                             <td>{{ $parking->vehicleType->name }}</td>
