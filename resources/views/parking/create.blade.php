@@ -21,12 +21,14 @@
                     <form action="{{ route('parking.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label for="license_plate" class="form-label">Plat Nomor Kendaraan <small class="text-muted">(Opsional)</small></label>
+                            <label for="license_plate" class="form-label">Plat Nomor Kendaraan <small
+                                    class="text-muted">(Opsional)</small></label>
                             <input type="text"
                                 class="form-control form-control-lg @error('license_plate') is-invalid @enderror"
                                 id="license_plate" name="license_plate" value="{{ old('license_plate') }}"
-                                placeholder="Contoh: K 1234 ABC, K 5678 EF (Opsional - kosongkan jika tidak diketahui)" autocomplete="off"
-                                maxlength="12" style="text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">
+                                placeholder="Contoh: K 1234 ABC, K 5678 EF (Opsional - kosongkan jika tidak diketahui)"
+                                autocomplete="off" maxlength="12"
+                                style="text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">
                             @error('license_plate')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -297,10 +299,10 @@
                     console.warn('Parking form not found');
                     return;
                 }
-                
+
                 // Log untuk debugging
                 console.log('Parking form found:', parkingForm.action);
-                
+
                 // Pastikan form logout tidak terganggu dengan menambahkan event listener khusus
                 document.addEventListener('submit', function(e) {
                     const form = e.target;
@@ -504,7 +506,7 @@
                     if (!this.action.includes('parking')) {
                         return; // Biarkan form lain berjalan normal
                     }
-                    
+
                     // Hanya validasi jika submit dari tombol submit, bukan dari link lain (misal logout)
                     // Cek activeElement adalah tombol submit di form ini
                     const activeEl = document.activeElement;
