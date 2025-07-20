@@ -40,7 +40,7 @@ class ParkingTransaction extends Model
         if (empty($licensePlate) || is_null($licensePlate)) {
             return true;
         }
-        
+
         // Format: [1-2 huruf] [1-4 angka] [1-3 huruf]
         // Contoh: B 1234 ABC, D 123 AB, F 12 A
         $pattern = '/^[A-Z]{1,2}\s\d{1,4}\s[A-Z]{1,3}$/';
@@ -57,7 +57,7 @@ class ParkingTransaction extends Model
         if (empty($licensePlate) || is_null($licensePlate)) {
             return null;
         }
-        
+
         // Remove all spaces and convert to uppercase
         $cleaned = strtoupper(preg_replace('/\s+/', '', trim($licensePlate)));
 
