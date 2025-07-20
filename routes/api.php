@@ -38,7 +38,13 @@ Route::prefix('v1')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         
         // Vehicle Types
-        Route::apiResource('vehicle-types', VehicleTypeApiController::class);
+        Route::apiResource('vehicle-types', VehicleTypeApiController::class)->names([
+            'index' => 'api.vehicle-types.index',
+            'store' => 'api.vehicle-types.store', 
+            'show' => 'api.vehicle-types.show',
+            'update' => 'api.vehicle-types.update',
+            'destroy' => 'api.vehicle-types.destroy'
+        ]);
         
         // Parking Operations
         Route::prefix('parking')->group(function () {
