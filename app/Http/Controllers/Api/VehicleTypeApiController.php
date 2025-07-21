@@ -25,7 +25,8 @@ class VehicleTypeApiController extends Controller
                     return [
                         'id' => $type->id,
                         'name' => $type->name,
-                        'flat_rate' => $type->flat_rate,
+                        'flat_rate' => $type->flat_rate, // Keep for web compatibility
+                        'rate' => $type->flat_rate, // Add for mobile compatibility
                         'formatted_rate' => 'Rp ' . number_format($type->flat_rate, 0, ',', '.'),
                         'is_active' => $type->is_active,
                         'created_at' => $type->created_at,
@@ -57,7 +58,8 @@ class VehicleTypeApiController extends Controller
                 'data' => [
                     'id' => $vehicleType->id,
                     'name' => $vehicleType->name,
-                    'flat_rate' => $vehicleType->flat_rate,
+                    'flat_rate' => $vehicleType->flat_rate, // Keep for web compatibility
+                    'rate' => $vehicleType->flat_rate, // Add for mobile compatibility
                     'formatted_rate' => 'Rp ' . number_format($vehicleType->flat_rate, 0, ',', '.'),
                     'is_active' => $vehicleType->is_active,
                     'created_at' => $vehicleType->created_at,
@@ -89,21 +91,24 @@ class VehicleTypeApiController extends Controller
                 [
                     'id' => 1,
                     'name' => 'Motor',
-                    'flat_rate' => 2000,
+                    'flat_rate' => 2000, // Keep for web compatibility
+                    'rate' => 2000, // Add for mobile compatibility
                     'formatted_rate' => 'Rp 2.000',
                     'is_active' => true,
                 ],
                 [
                     'id' => 2,
                     'name' => 'Mobil',
-                    'flat_rate' => 5000,
+                    'flat_rate' => 5000, // Keep for web compatibility
+                    'rate' => 5000, // Add for mobile compatibility
                     'formatted_rate' => 'Rp 5.000',
                     'is_active' => true,
                 ],
                 [
                     'id' => 3,
                     'name' => 'Truk',
-                    'flat_rate' => 10000,
+                    'flat_rate' => 10000, // Keep for web compatibility
+                    'rate' => 10000, // Add for mobile compatibility
                     'formatted_rate' => 'Rp 10.000',
                     'is_active' => true,
                 ]
@@ -157,7 +162,8 @@ class VehicleTypeApiController extends Controller
                 'data' => [
                     'id' => $vehicleType->id,
                     'name' => $vehicleType->name,
-                    'flat_rate' => $vehicleType->flat_rate,
+                    'flat_rate' => $vehicleType->flat_rate, // Keep for web compatibility
+                    'rate' => $vehicleType->flat_rate, // Add for mobile compatibility
                     'formatted_rate' => 'Rp ' . number_format($vehicleType->flat_rate, 0, ',', '.'),
                     'is_active' => $vehicleType->is_active,
                     'created_at' => $vehicleType->created_at,
@@ -208,7 +214,8 @@ class VehicleTypeApiController extends Controller
                 'data' => [
                     'id' => $vehicleType->id,
                     'name' => $vehicleType->name,
-                    'flat_rate' => $vehicleType->flat_rate,
+                    'flat_rate' => $vehicleType->flat_rate, // Keep for web compatibility
+                    'rate' => $vehicleType->flat_rate, // Add for mobile compatibility
                     'formatted_rate' => 'Rp ' . number_format($vehicleType->flat_rate, 0, ',', '.'),
                     'is_active' => $vehicleType->is_active,
                     'updated_at' => $vehicleType->updated_at,

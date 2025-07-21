@@ -16,7 +16,7 @@ class ParkingApiController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = ParkingTransaction::with(['vehicleType', 'user'])
+            $query = ParkingTransaction::with(['vehicleType'])
                 ->orderBy('entry_time', 'desc');
 
             // Filter by date range
@@ -49,7 +49,7 @@ class ParkingApiController extends Controller
                         break;
                     case 'month':
                         $query->whereMonth('entry_time', now()->month)
-                              ->whereYear('entry_time', now()->year);
+                            ->whereYear('entry_time', now()->year);
                         break;
                 }
             }
@@ -85,7 +85,6 @@ class ParkingApiController extends Controller
                     'pages' => ceil($total / $limit),
                 ]
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -124,17 +123,15 @@ class ParkingApiController extends Controller
                 'amount' => $vehicleType->flat_rate,
                 'entry_time' => now(),
                 'notes' => $request->notes,
-                'user_id' => $request->user()->id,
             ]);
 
-            $transaction->load(['vehicleType', 'user']);
+            $transaction->load(['vehicleType']);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Parking transaction created successfully',
                 'data' => $this->formatTransactionData($transaction),
             ], 201);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -155,7 +152,7 @@ class ParkingApiController extends Controller
     public function show($id)
     {
         try {
-            $transaction = ParkingTransaction::with(['vehicleType', 'user'])
+            $transaction = ParkingTransaction::with(['vehicleType'])
                 ->findOrFail($id);
 
             return response()->json([
@@ -163,7 +160,6 @@ class ParkingApiController extends Controller
                 'message' => 'Parking transaction retrieved successfully',
                 'data' => $this->formatTransactionData($transaction),
             ]);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
@@ -185,8 +181,8 @@ class ParkingApiController extends Controller
         try {
             $transaction = ParkingTransaction::findOrFail($id);
 
-            // Check permission (admin or transaction owner)
-            if ($request->user()->role !== 'admin' && $transaction->user_id !== $request->user()->id) {
+            // Check permission (admin only since we don't track user ownership)
+            if ($request->user()->role !== 'admin') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthorized to update this transaction'
@@ -199,25 +195,24 @@ class ParkingApiController extends Controller
             ]);
 
             $updateData = [];
-            
+
             if ($request->has('license_plate')) {
-                $updateData['license_plate'] = $request->license_plate ? 
+                $updateData['license_plate'] = $request->license_plate ?
                     $this->formatLicensePlate(trim($request->license_plate)) : null;
             }
-            
+
             if ($request->has('notes')) {
                 $updateData['notes'] = $request->notes;
             }
 
             $transaction->update($updateData);
-            $transaction->load(['vehicleType', 'user']);
+            $transaction->load(['vehicleType']);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Parking transaction updated successfully',
                 'data' => $this->formatTransactionData($transaction),
             ]);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
@@ -259,7 +254,6 @@ class ParkingApiController extends Controller
                 'success' => true,
                 'message' => 'Parking transaction deleted successfully'
             ]);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
@@ -279,7 +273,7 @@ class ParkingApiController extends Controller
     public function print($id)
     {
         try {
-            $transaction = ParkingTransaction::with(['vehicleType', 'user'])
+            $transaction = ParkingTransaction::with(['vehicleType'])
                 ->findOrFail($id);
 
             $printData = [
@@ -292,7 +286,6 @@ class ParkingApiController extends Controller
                 'entry_date' => $transaction->entry_time->format('d/m/Y'),
                 'entry_time_only' => $transaction->entry_time->format('H:i'),
                 'notes' => $transaction->notes,
-                'operator' => $transaction->user->name ?? 'System',
                 'location' => config('app.name', 'Parkir System'),
                 'print_time' => now()->format('d/m/Y H:i:s'),
             ];
@@ -302,7 +295,6 @@ class ParkingApiController extends Controller
                 'message' => 'Print data retrieved successfully',
                 'data' => $printData,
             ]);
-
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
@@ -343,7 +335,7 @@ class ParkingApiController extends Controller
                     break;
                 case 'month':
                     $query->whereMonth('entry_time', now()->month)
-                          ->whereYear('entry_time', now()->year);
+                        ->whereYear('entry_time', now()->year);
                     $periodLabel = 'Bulan Ini';
                     break;
                 case 'all':
@@ -383,7 +375,6 @@ class ParkingApiController extends Controller
                     'vehicle_breakdown' => $vehicleStats,
                 ],
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -428,7 +419,6 @@ class ParkingApiController extends Controller
                 'entry_time' => now()->toISOString(),
                 'formatted_entry_time' => now()->format('d/m/Y H:i:s'),
                 'notes' => $request->notes,
-                'operator' => 'Demo User',
                 'print_data' => [
                     'ticket_number' => $ticketNumber,
                     'license_plate' => $request->license_plate ? strtoupper(trim($request->license_plate)) : null,
@@ -446,7 +436,6 @@ class ParkingApiController extends Controller
                 'data' => $demoTransaction,
                 'note' => 'This is demo data for testing purposes'
             ], 201);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -469,7 +458,7 @@ class ParkingApiController extends Controller
         $prefix = 'TK';
         $date = date('ymd');
         $counter = ParkingTransaction::whereDate('created_at', today())->count() + 1;
-        
+
         return $prefix . $date . str_pad($counter, 3, '0', STR_PAD_LEFT);
     }
 
@@ -500,7 +489,6 @@ class ParkingApiController extends Controller
             'entry_time' => $transaction->entry_time->toISOString(),
             'formatted_entry_time' => $transaction->entry_time->format('d/m/Y H:i:s'),
             'notes' => $transaction->notes,
-            'operator' => $transaction->user->name ?? 'Unknown',
             'created_at' => $transaction->created_at->toISOString(),
             'updated_at' => $transaction->updated_at->toISOString(),
         ];
@@ -513,16 +501,16 @@ class ParkingApiController extends Controller
     {
         try {
             $lastSyncTime = $request->input('last_sync_time');
-            
-            $query = ParkingTransaction::with(['vehicleType', 'user'])
+
+            $query = ParkingTransaction::with(['vehicleType'])
                 ->orderBy('updated_at', 'desc');
-            
+
             if ($lastSyncTime) {
                 $query->where('updated_at', '>', Carbon::parse($lastSyncTime));
             }
-            
+
             $transactions = $query->limit(100)->get();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Data synchronized successfully',
@@ -532,7 +520,6 @@ class ParkingApiController extends Controller
                 }),
                 'total' => $transactions->count(),
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -561,7 +548,6 @@ class ParkingApiController extends Controller
                     'server_time' => now()->toISOString(),
                 ],
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
