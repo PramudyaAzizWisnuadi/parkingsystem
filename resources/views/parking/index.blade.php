@@ -42,11 +42,11 @@
                                             class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-eye"></i> <span class="d-none d-lg-inline">Detail</span>
                                         </a>
-                                        <button
+                                        {{-- <button
                                             onclick="printCopy('{{ route('parking.print', ['parking' => $transaction->id, 'copy' => true]) }}', '{{ $transaction->ticket_number }}')"
                                             class="btn btn-sm btn-outline-success">
                                             <i class="fas fa-print"></i> <span class="d-none d-lg-inline">Print Copy</span>
-                                        </button>
+                                        </button> --}}
                                     </td>
                                 </tr>
                             @endforeach

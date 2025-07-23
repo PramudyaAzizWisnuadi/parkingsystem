@@ -7,9 +7,9 @@
         <h1 class="h2">Detail Transaksi</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
             <div class="btn-group me-2">
-                <button id="printBtn1" class="btn btn-success">
+                {{-- <button id="printBtn1" class="btn btn-success">
                     <i class="fas fa-print"></i> Print Copy
-                </button>
+                </button> --}}
                 <a href="{{ route('parking.index') }}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left"></i> Kembali
                 </a>
@@ -68,9 +68,9 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <button id="printBtn2" class="btn btn-success">
+                        {{-- <button id="printBtn2" class="btn btn-success">
                             <i class="fas fa-print"></i> Print Copy
-                        </button>
+                        </button> --}}
                         <a href="{{ route('parking.create') }}" class="btn btn-primary">
                             <i class="fas fa-plus"></i> Transaksi Baru
                         </a>

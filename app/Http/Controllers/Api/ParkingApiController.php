@@ -455,11 +455,10 @@ class ParkingApiController extends Controller
      */
     private function generateTicketNumber()
     {
-        $prefix = 'TK';
         $date = date('ymd');
         $counter = ParkingTransaction::whereDate('created_at', today())->count() + 1;
 
-        return $prefix . $date . str_pad($counter, 3, '0', STR_PAD_LEFT);
+        return $date . str_pad($counter, 4, '0', STR_PAD_LEFT);
     }
 
     /**
