@@ -3,6 +3,7 @@
 ## 📋 Daftar Endpoint untuk Testing
 
 ### 🔥 Base URL
+
 ```
 http://localhost:8000/api/v1
 ```
@@ -12,17 +13,20 @@ http://localhost:8000/api/v1
 ## 1. 🏥 Health Check (Public)
 
 ### GET Health Check
+
 ```
 GET http://localhost:8000/api/v1/health
 ```
 
 **Headers:**
+
 ```
 Accept: application/json
 Content-Type: application/json
 ```
 
 **Expected Response:**
+
 ```json
 {
     "status": "success",
@@ -37,17 +41,20 @@ Content-Type: application/json
 ## 2. 🚗 Vehicle Types (Demo - No Auth)
 
 ### GET Demo Vehicle Types
+
 ```
 GET http://localhost:8000/api/v1/demo/vehicle-types
 ```
 
 **Headers:**
+
 ```
 Accept: application/json
 Content-Type: application/json
 ```
 
 **Expected Response:**
+
 ```json
 {
     "success": true,
@@ -88,17 +95,20 @@ Content-Type: application/json
 ## 3. 🔐 Authentication
 
 ### POST Login
+
 ```
 POST http://localhost:8000/api/v1/login
 ```
 
 **Headers:**
+
 ```
 Accept: application/json
 Content-Type: application/json
 ```
 
 **Body (JSON):**
+
 ```json
 {
     "email": "admin@example.com",
@@ -107,6 +117,7 @@ Content-Type: application/json
 ```
 
 **Expected Response:**
+
 ```json
 {
     "success": true,
@@ -127,17 +138,20 @@ Content-Type: application/json
 **⚠️ PENTING:** Salin token dari response untuk digunakan di request selanjutnya!
 
 ### POST Register
+
 ```
 POST http://localhost:8000/api/v1/register
 ```
 
 **Headers:**
+
 ```
 Accept: application/json
 Content-Type: application/json
 ```
 
 **Body (JSON):**
+
 ```json
 {
     "name": "Test User",
@@ -152,11 +166,13 @@ Content-Type: application/json
 ## 4. 🚗 Vehicle Types (Authenticated)
 
 ### GET Vehicle Types (Auth Required)
+
 ```
 GET http://localhost:8000/api/v1/vehicle-types
 ```
 
 **Headers:**
+
 ```
 Accept: application/json
 Content-Type: application/json
@@ -164,11 +180,13 @@ Authorization: Bearer YOUR_TOKEN_HERE
 ```
 
 ### GET Single Vehicle Type
+
 ```
 GET http://localhost:8000/api/v1/vehicle-types/1
 ```
 
 **Headers:**
+
 ```
 Accept: application/json
 Content-Type: application/json
@@ -176,11 +194,13 @@ Authorization: Bearer YOUR_TOKEN_HERE
 ```
 
 ### POST Create Vehicle Type (Admin Only)
+
 ```
 POST http://localhost:8000/api/v1/vehicle-types
 ```
 
 **Headers:**
+
 ```
 Accept: application/json
 Content-Type: application/json
@@ -188,6 +208,7 @@ Authorization: Bearer YOUR_TOKEN_HERE
 ```
 
 **Body (JSON):**
+
 ```json
 {
     "name": "Bus",
@@ -197,11 +218,13 @@ Authorization: Bearer YOUR_TOKEN_HERE
 ```
 
 ### PUT Update Vehicle Type (Admin Only)
+
 ```
 PUT http://localhost:8000/api/v1/vehicle-types/1
 ```
 
 **Headers:**
+
 ```
 Accept: application/json
 Content-Type: application/json
@@ -209,6 +232,7 @@ Authorization: Bearer YOUR_TOKEN_HERE
 ```
 
 **Body (JSON):**
+
 ```json
 {
     "name": "Motor Besar",
@@ -222,11 +246,13 @@ Authorization: Bearer YOUR_TOKEN_HERE
 ## 5. 🅿️ Parking Operations
 
 ### GET Parking History
+
 ```
 GET http://localhost:8000/api/v1/parking
 ```
 
 **Headers:**
+
 ```
 Accept: application/json
 Content-Type: application/json
@@ -234,16 +260,19 @@ Authorization: Bearer YOUR_TOKEN_HERE
 ```
 
 **Query Parameters (Optional):**
+
 ```
 ?page=1&per_page=10&period=today&license_plate=B1234&vehicle_type_id=1
 ```
 
 ### POST Create Parking Transaction
+
 ```
 POST http://localhost:8000/api/v1/parking
 ```
 
 **Headers:**
+
 ```
 Accept: application/json
 Content-Type: application/json
@@ -251,6 +280,7 @@ Authorization: Bearer YOUR_TOKEN_HERE
 ```
 
 **Body (JSON):**
+
 ```json
 {
     "vehicle_type_id": 1,
@@ -260,17 +290,20 @@ Authorization: Bearer YOUR_TOKEN_HERE
 ```
 
 ### POST Demo Parking Transaction (No Auth)
+
 ```
 POST http://localhost:8000/api/v1/demo/parking
 ```
 
 **Headers:**
+
 ```
 Accept: application/json
 Content-Type: application/json
 ```
 
 **Body (JSON):**
+
 ```json
 {
     "vehicle_type_id": 1,
@@ -280,11 +313,13 @@ Content-Type: application/json
 ```
 
 ### GET Single Parking Transaction
+
 ```
 GET http://localhost:8000/api/v1/parking/1
 ```
 
 **Headers:**
+
 ```
 Accept: application/json
 Content-Type: application/json
@@ -296,11 +331,13 @@ Authorization: Bearer YOUR_TOKEN_HERE
 ## 6. 📊 Statistics & Reports
 
 ### GET Statistics
+
 ```
 GET http://localhost:8000/api/v1/stats
 ```
 
 **Headers:**
+
 ```
 Accept: application/json
 Content-Type: application/json
@@ -308,17 +345,21 @@ Authorization: Bearer YOUR_TOKEN_HERE
 ```
 
 **Query Parameters:**
+
 ```
 ?period=today
 ```
+
 Options: `today`, `yesterday`, `week`, `month`, `all`
 
 ### GET Daily Report
+
 ```
 GET http://localhost:8000/api/v1/reports/daily
 ```
 
 **Headers:**
+
 ```
 Accept: application/json
 Content-Type: application/json
@@ -326,11 +367,13 @@ Authorization: Bearer YOUR_TOKEN_HERE
 ```
 
 ### GET Monthly Report
+
 ```
 GET http://localhost:8000/api/v1/reports/monthly
 ```
 
 **Headers:**
+
 ```
 Accept: application/json
 Content-Type: application/json
@@ -342,11 +385,13 @@ Authorization: Bearer YOUR_TOKEN_HERE
 ## 7. 🔄 Sync Operations
 
 ### POST Sync Data
+
 ```
 POST http://localhost:8000/api/v1/sync
 ```
 
 **Headers:**
+
 ```
 Accept: application/json
 Content-Type: application/json
@@ -354,6 +399,7 @@ Authorization: Bearer YOUR_TOKEN_HERE
 ```
 
 **Body (JSON) - Optional:**
+
 ```json
 {
     "last_sync_time": "2025-07-20T10:00:00.000Z"
@@ -361,11 +407,13 @@ Authorization: Bearer YOUR_TOKEN_HERE
 ```
 
 ### GET Sync Status
+
 ```
 GET http://localhost:8000/api/v1/sync/status
 ```
 
 **Headers:**
+
 ```
 Accept: application/json
 Content-Type: application/json
@@ -377,29 +425,34 @@ Authorization: Bearer YOUR_TOKEN_HERE
 ## 🚀 Cara Testing di Postman
 
 ### Step 1: Setup Environment
+
 1. Buka Postman
 2. Create New Environment: `Parking API`
 3. Add Variables:
-   - `base_url`: `http://localhost:8000/api/v1`
-   - `token`: (akan diisi setelah login)
+    - `base_url`: `http://localhost:8000/api/v1`
+    - `token`: (akan diisi setelah login)
 
 ### Step 2: Test Public Endpoints
+
 1. **Health Check** - pastikan API running
 2. **Demo Vehicle Types** - cek format unified
 3. **Demo Parking** - test tanpa auth
 
 ### Step 3: Authentication
+
 1. **Login** dengan credentials yang ada
 2. **Copy token** dari response
 3. **Set token** di environment variable
 
 ### Step 4: Test Authenticated Endpoints
+
 1. **Vehicle Types** - cek format unified dengan auth
 2. **Parking Operations** - CRUD operations
 3. **Statistics** - cek reporting
 4. **Sync** - test sync functionality
 
 ### Step 5: Test Admin Features (jika role admin)
+
 1. **Create Vehicle Type**
 2. **Update Vehicle Type**
 3. **Delete Vehicle Type** (hati-hati!)
@@ -409,17 +462,21 @@ Authorization: Bearer YOUR_TOKEN_HERE
 ## 🔍 Validation Points
 
 ### ✅ Format Unified Vehicle Types
+
 Pastikan response mengandung:
+
 ```json
 {
-    "flat_rate": 2000,    // Untuk web
-    "rate": 2000,         // Untuk mobile
+    "flat_rate": 2000, // Untuk web
+    "rate": 2000, // Untuk mobile
     "formatted_rate": "Rp 2.000"
 }
 ```
 
 ### ✅ Parking Transaction Format
+
 Pastikan vehicle_type dalam transaction:
+
 ```json
 {
     "vehicle_type": {
@@ -431,17 +488,20 @@ Pastikan vehicle_type dalam transaction:
 ```
 
 ### ✅ Error Handling
+
 Test error cases:
-- Invalid credentials
-- Missing required fields
-- Unauthorized access
-- Non-existent resources
+
+-   Invalid credentials
+-   Missing required fields
+-   Unauthorized access
+-   Non-existent resources
 
 ---
 
 ## 📱 Testing Mobile Compatibility
 
 ### Test Vehicle Types Format:
+
 ```bash
 # Cek apakah response mengandung kedua field
 curl -X GET "http://localhost:8000/api/v1/demo/vehicle-types" \
@@ -449,6 +509,7 @@ curl -X GET "http://localhost:8000/api/v1/demo/vehicle-types" \
 ```
 
 ### Test Parking Format:
+
 ```bash
 # Cek format vehicle_type dalam parking transaction
 curl -X POST "http://localhost:8000/api/v1/demo/parking" \
@@ -461,15 +522,19 @@ curl -X POST "http://localhost:8000/api/v1/demo/parking" \
 ## 🐛 Common Issues & Solutions
 
 ### Issue: "Unauthenticated"
+
 **Solution:** Pastikan Authorization header dengan Bearer token
 
-### Issue: "403 Forbidden" 
+### Issue: "403 Forbidden"
+
 **Solution:** User bukan admin untuk endpoint yang memerlukan admin
 
 ### Issue: "Connection refused"
+
 **Solution:** Pastikan Laravel server running: `php artisan serve --host=0.0.0.0 --port=8000`
 
 ### Issue: Missing unified format
+
 **Solution:** Pastikan VehicleTypeApiController sudah diupdate dengan field `rate`
 
 ---

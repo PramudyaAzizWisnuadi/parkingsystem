@@ -53,7 +53,6 @@ class AuthController extends Controller
                     'token_type' => 'Bearer',
                 ]
             ]);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -105,7 +104,6 @@ class AuthController extends Controller
                     'token_type' => 'Bearer',
                 ]
             ], 201);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -141,7 +139,6 @@ class AuthController extends Controller
                     ]
                 ]
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -163,7 +160,6 @@ class AuthController extends Controller
                 'success' => true,
                 'message' => 'Logged out successfully'
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

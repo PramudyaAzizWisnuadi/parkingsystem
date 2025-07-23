@@ -22,30 +22,30 @@ Route::prefix('v1')->group(function () {
             'version' => 'v1'
         ]);
     });
-    
+
     // Public routes
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
-    
+
     // Demo routes (for testing without auth)
     Route::get('/demo/vehicle-types', [VehicleTypeApiController::class, 'demo']);
     Route::post('/demo/parking', [ParkingApiController::class, 'demoStore']);
-    
+
     // Protected routes
     Route::middleware('auth:sanctum')->group(function () {
         // User management
         Route::get('/user', [AuthController::class, 'user']);
         Route::post('/logout', [AuthController::class, 'logout']);
-        
+
         // Vehicle Types
         Route::apiResource('vehicle-types', VehicleTypeApiController::class)->names([
             'index' => 'api.vehicle-types.index',
-            'store' => 'api.vehicle-types.store', 
+            'store' => 'api.vehicle-types.store',
             'show' => 'api.vehicle-types.show',
             'update' => 'api.vehicle-types.update',
             'destroy' => 'api.vehicle-types.destroy'
         ]);
-        
+
         // Parking Operations
         Route::prefix('parking')->group(function () {
             Route::get('/', [ParkingApiController::class, 'index']);
@@ -55,12 +55,12 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{parking}', [ParkingApiController::class, 'destroy']);
             Route::get('/{parking}/print', [ParkingApiController::class, 'print']);
         });
-        
+
         // Statistics & Reports
         Route::get('/stats', [ParkingApiController::class, 'stats']);
         Route::get('/reports/daily', [ParkingApiController::class, 'dailyReport']);
         Route::get('/reports/monthly', [ParkingApiController::class, 'monthlyReport']);
-        
+
         // Data synchronization
         Route::post('/sync', [ParkingApiController::class, 'sync']);
         Route::get('/sync/status', [ParkingApiController::class, 'syncStatus']);
