@@ -112,7 +112,6 @@
                     <small class="text-muted">
                         <strong>F1-F4:</strong> Pilih jenis kendaraan<br>
                         <strong>Ctrl+Enter:</strong> Submit form<br>
-                        <strong>Ctrl+P:</strong> Print manual (jika tersedia)<br>
                         <strong>Esc:</strong> Reset form<br>
                         <strong>Tab:</strong> Navigasi antar field
                     </small>
@@ -192,18 +191,6 @@
 
             .alert-danger {
                 border-left-color: #dc3545;
-            }
-
-            /* Hidden print iframe */
-            #printIframe {
-                position: absolute !important;
-                top: -9999px !important;
-                left: -9999px !important;
-                width: 1px !important;
-                height: 1px !important;
-                border: none !important;
-                visibility: hidden !important;
-                opacity: 0 !important;
             }
 
             @keyframes slideInFromTop {
@@ -567,7 +554,7 @@
 
                         // Show processing notification
                         showNotification('info', 'Memproses transaksi...',
-                            'Tiket akan otomatis terprint setelah selesai.');
+                            'Setelah selesai, tombol print akan tersedia.');
 
                         // Prepare form data
                         const formData = new FormData(this);
@@ -593,13 +580,8 @@
                                     // Show success message
                                     showNotification('success', 'Transaksi Berhasil!', data.message);
 
-                                    // Auto print ticket
-                                    printTicket(data.print_url, data.ticket_number);
-
-                                    // Reset form after short delay
-                                    setTimeout(() => {
-                                        resetForm();
-                                    }, 2000);
+                                    // Redirect ke halaman ticket untuk print
+                                    window.location.href = data.print_url;
                                 } else {
                                     throw new Error(data.message ||
                                         'Terjadi kesalahan saat memproses transaksi');
@@ -668,156 +650,6 @@
                     Swal.fire(swalConfig);
                 }
 
-                // Function to print ticket using hidden iframe
-                function printTicket(printUrl, ticketNumber) {
-                    showNotification('info', 'Menyiapkan Print...',
-                        `Memproses tiket ${ticketNumber} untuk print otomatis.`);
-
-                    // Remove existing print iframe if any
-                    const existingIframe = document.getElementById('printIframe');
-                    if (existingIframe) {
-                        existingIframe.remove();
-                    }
-
-                    // Create hidden iframe for printing
-                    const printIframe = document.createElement('iframe');
-                    printIframe.id = 'printIframe';
-                    printIframe.style.position = 'absolute';
-                    printIframe.style.top = '-9999px';
-                    printIframe.style.left = '-9999px';
-                    printIframe.style.width = '1px';
-                    printIframe.style.height = '1px';
-                    printIframe.style.border = 'none';
-                    printIframe.style.visibility = 'hidden';
-                    printIframe.style.opacity = '0';
-
-                    // Add iframe to document
-                    document.body.appendChild(printIframe);
-
-                    // Set timeout for loading
-                    let loadTimeout = setTimeout(() => {
-                        showNotification('error', 'Timeout Print',
-                            'Print memerlukan waktu terlalu lama. Silakan print manual.');
-                        addManualPrintButton(printUrl, ticketNumber);
-                        if (printIframe.parentNode) {
-                            printIframe.remove();
-                        }
-                    }, 10000); // 10 second timeout
-
-                    // Load the ticket content
-                    printIframe.onload = function() {
-                        clearTimeout(loadTimeout);
-
-                        try {
-                            // Wait a moment for content to fully load
-                            setTimeout(() => {
-                                try {
-                                    // Check if iframe content is accessible
-                                    const iframeDoc = printIframe.contentDocument || printIframe
-                                        .contentWindow.document;
-
-                                    // Trigger print from iframe
-                                    printIframe.contentWindow.print();
-
-                                    showNotification('success', 'Print Berhasil',
-                                        'Tiket sedang dikirim ke printer. Pastikan printer sudah siap.');
-
-                                    // Remove iframe after print
-                                    setTimeout(() => {
-                                        if (printIframe.parentNode) {
-                                            printIframe.remove();
-                                        }
-                                    }, 2000);
-                                } catch (printError) {
-                                    console.error('Print error:', printError);
-                                    // Fallback to manual print button
-                                    showNotification('info', 'Print Manual',
-                                        'Auto print tidak tersedia. Gunakan tombol print manual.');
-                                    addManualPrintButton(printUrl, ticketNumber);
-                                    if (printIframe.parentNode) {
-                                        printIframe.remove();
-                                    }
-                                }
-                            }, 1500);
-                        } catch (error) {
-                            clearTimeout(loadTimeout);
-                            console.error('Print setup error:', error);
-                            showNotification('error', 'Print Error',
-                                'Terjadi kesalahan saat print. Gunakan print manual.');
-                            addManualPrintButton(printUrl, ticketNumber);
-                            if (printIframe.parentNode) {
-                                printIframe.remove();
-                            }
-                        }
-                    };
-
-                    // Handle iframe error
-                    printIframe.onerror = function() {
-                        clearTimeout(loadTimeout);
-                        showNotification('error', 'Gagal Load Tiket',
-                            'Tidak dapat memuat tiket untuk print. Gunakan print manual.');
-                        addManualPrintButton(printUrl, ticketNumber);
-                        if (printIframe.parentNode) {
-                            printIframe.remove();
-                        }
-                    };
-
-                    // Set iframe source to load the ticket
-                    printIframe.src = printUrl;
-                }
-
-                // Function to add manual print button as fallback
-                function addManualPrintButton(printUrl, ticketNumber) {
-                    // Remove existing manual print button if any
-                    const existingBtn = document.getElementById('manualPrintBtn');
-                    if (existingBtn) {
-                        existingBtn.remove();
-                    }
-
-                    // Create button container
-                    const buttonContainer = document.createElement('div');
-                    buttonContainer.id = 'manualPrintContainer';
-                    buttonContainer.className = 'mt-3 d-flex gap-2 flex-wrap';
-
-                    // Manual print button
-                    const manualPrintBtn = document.createElement('a');
-                    manualPrintBtn.id = 'manualPrintBtn';
-                    manualPrintBtn.href = printUrl;
-                    manualPrintBtn.target = '_blank';
-                    manualPrintBtn.className = 'btn btn-success btn-lg';
-                    manualPrintBtn.innerHTML = `
-                        <i class="fas fa-print"></i> Print Tiket ${ticketNumber}
-                    `;
-
-                    // Download link button (alternative)
-                    const downloadBtn = document.createElement('a');
-                    downloadBtn.href = printUrl + '?download=1';
-                    downloadBtn.target = '_blank';
-                    downloadBtn.className = 'btn btn-info btn-lg';
-                    downloadBtn.innerHTML = `
-                        <i class="fas fa-download"></i> Download
-                    `;
-
-                    // Add buttons to container
-                    buttonContainer.appendChild(manualPrintBtn);
-                    buttonContainer.appendChild(downloadBtn);
-
-                    // Insert after submit button
-                    const submitBtn = document.getElementById('submitBtn');
-                    submitBtn.parentNode.insertBefore(buttonContainer, submitBtn.nextSibling);
-
-                    // Auto remove manual print buttons after 45 seconds
-                    setTimeout(() => {
-                        if (buttonContainer.parentNode) {
-                            buttonContainer.remove();
-                        }
-                    }, 45000);
-
-                    // Add info notification about manual options
-                    showNotification('info', 'Opsi Manual Tersedia',
-                        'Gunakan tombol Print untuk membuka di tab baru atau Download untuk menyimpan tiket.');
-                }
-
                 // Function to reset form
                 function resetForm() {
                     const parkingForm = document.querySelector('form[action*="parking"]');
@@ -830,18 +662,6 @@
                     licensePlateInput.classList.remove('is-valid', 'is-invalid');
                     const feedbackEl = document.querySelector('#license_plate + .invalid-feedback');
                     if (feedbackEl) feedbackEl.style.display = 'none';
-
-                    // Remove manual print container if exists
-                    const manualPrintContainer = document.getElementById('manualPrintContainer');
-                    if (manualPrintContainer) {
-                        manualPrintContainer.remove();
-                    }
-
-                    // Remove print iframe if exists
-                    const printIframe = document.getElementById('printIframe');
-                    if (printIframe) {
-                        printIframe.remove();
-                    }
 
                     resetButtonState();
                     licensePlateInput.focus();
@@ -917,44 +737,7 @@
                             resetForm();
                         }
                     }
-
-                    // Ctrl + P for manual print (if manual print button exists)
-                    if (e.ctrlKey && e.key.toLowerCase() === 'p') {
-                        const manualPrintBtn = document.getElementById('manualPrintBtn');
-                        if (manualPrintBtn) {
-                            e.preventDefault();
-                            manualPrintBtn.click();
-                        }
-                    }
                 });
-
-                // Detect browser capabilities for print optimization
-                function detectPrintCapabilities() {
-                    try {
-                        // Test if we can access iframe content (will throw error in some browsers)
-                        const testIframe = document.createElement('iframe');
-                        testIframe.style.display = 'none';
-                        document.body.appendChild(testIframe);
-
-                        setTimeout(() => {
-                            try {
-                                const iframeDoc = testIframe.contentDocument || testIframe.contentWindow
-                                    .document;
-                                // If we can access it, iframe printing should work
-                                document.body.removeChild(testIframe);
-                            } catch (e) {
-                                // Iframe content not accessible, may need fallback
-                                document.body.removeChild(testIframe);
-                                console.warn('Iframe printing may be limited in this browser');
-                            }
-                        }, 100);
-                    } catch (e) {
-                        console.warn('Browser has limited iframe capabilities');
-                    }
-                }
-
-                // Run browser detection
-                detectPrintCapabilities();
             });
         </script>
     @endpush

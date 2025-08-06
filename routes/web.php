@@ -4,7 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VehicleTypeController;
 use App\Http\Controllers\ParkingController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\TicketConfigController;
+use App\Http\Controllers\Admin\TicketConfigController;
 use App\Http\Controllers\ChartController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,8 +25,7 @@ Route::get('/test-500', function () {
     abort(500);
 });
 
-Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [ParkingController::class, 'dashboard'])->name('dashboard');
+Route::middleware(['auth', 'prevent.back'])->group(function () {
 
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -42,6 +41,8 @@ Route::middleware('auth')->group(function () {
 
     // Routes khusus untuk admin
     Route::middleware('role:admin')->group(function () {
+        Route::get('/dashboard', [ParkingController::class, 'dashboard'])->name('dashboard');
+
         // Vehicle Types Routes
         Route::resource('vehicle-types', VehicleTypeController::class);
 
@@ -51,8 +52,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/reports/export', [ReportController::class, 'export'])->name('reports.export');
 
         // Ticket Configuration Routes
-        Route::get('/ticket-config', [TicketConfigController::class, 'index'])->name('ticket-config.index');
-        Route::put('/ticket-config', [TicketConfigController::class, 'update'])->name('ticket-config.update');
+        Route::get('/ticket-config', [TicketConfigController::class, 'index'])->name('admin.ticket-config');
+        Route::put('/ticket-config', [TicketConfigController::class, 'update'])->name('admin.ticket-config.update');
+        Route::post('/ticket-config/reset', [TicketConfigController::class, 'reset'])->name('admin.ticket-config.reset');
 
         // Chart Data API Routes
         Route::get('/api/chart-data/vehicle-types', [ChartController::class, 'vehicleTypeDistribution']);

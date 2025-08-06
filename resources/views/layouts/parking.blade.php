@@ -330,19 +330,19 @@
                         <div class="position-sticky pt-3">
                             <ul class="nav flex-column">
                                 <li class="nav-item">
-                                    <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
-                                        href="{{ route('dashboard') }}">
-                                        <i class="fas fa-tachometer-alt"></i> <span
-                                            class="d-none d-md-inline">Dashboard</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
                                     <a class="nav-link {{ request()->routeIs('parking.*') ? 'active' : '' }}"
                                         href="{{ route('parking.index') }}">
                                         <i class="fas fa-car"></i> <span class="d-none d-md-inline">Transaksi</span>
                                     </a>
                                 </li>
                                 @if (Auth::user()->isAdmin())
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                                            href="{{ route('dashboard') }}">
+                                            <i class="fas fa-tachometer-alt"></i> <span
+                                                class="d-none d-md-inline">Dashboard</span>
+                                        </a>
+                                    </li>
                                     <li class="nav-item">
                                         <a class="nav-link {{ request()->routeIs('vehicle-types.*') ? 'active' : '' }}"
                                             href="{{ route('vehicle-types.index') }}">
@@ -357,9 +357,10 @@
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link {{ request()->routeIs('ticket-config.*') ? 'active' : '' }}"
-                                            href="{{ route('ticket-config.index') }}">
-                                            <i class="fas fa-cog"></i> <span class="d-none d-md-inline">Konfigurasi</span>
+                                        <a class="nav-link {{ request()->routeIs('admin.ticket-config*') ? 'active' : '' }}"
+                                            href="{{ route('admin.ticket-config') }}">
+                                            <i class="fas fa-cog"></i> <span class="d-none d-md-inline">Konfigurasi
+                                                Tiket</span>
                                         </a>
                                     </li>
                                 @endif
@@ -400,6 +401,65 @@
                     console.log("Service worker registered: " + reg.scope);
                 });
             }
+
+            // Prevent browser back button
+            (function(global) {
+                'use strict';
+
+                if (typeof(global) === "undefined") {
+                    throw new Error("window is undefined");
+                }
+
+                var _hash = "!";
+                var noBackPlease = function() {
+                    global.location.href += "#";
+                    // Making sure we have the fruit available for juice (^__^)
+                    global.setTimeout(function() {
+                        global.location.href += "!";
+                    }, 50);
+                };
+
+                global.onhashchange = function() {
+                    if (global.location.hash !== _hash) {
+                        global.location.hash = _hash;
+                    }
+                };
+
+                global.onload = function() {
+                    noBackPlease();
+
+                    // Disables backspace on page except on input fields and textarea
+                    global.document.onkeydown = function(e) {
+                        var t = e.target || e.srcElement;
+                        if (e.keyCode === 8 && t !== null &&
+                            !/(input|textarea)/i.test(t.tagName) &&
+                            t.type !== "text" && t.type !== "password" &&
+                            t.type !== "email" && t.type !== "number" &&
+                            t.type !== "search" && t.type !== "tel" &&
+                            t.type !== "url") {
+                            return false;
+                        }
+                    };
+                };
+
+                // Alternative method using history API
+                window.addEventListener('load', function() {
+                    window.history.pushState({}, '', window.location.href);
+                    window.addEventListener('popstate', function() {
+                        window.history.pushState({}, '', window.location.href);
+
+                        // Show warning if user tries to go back
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Peringatan',
+                            text: 'Tidak dapat menggunakan tombol back browser. Gunakan navigasi dalam aplikasi.',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#007bff'
+                        });
+                    });
+                });
+
+            })(window);
         </script>
         @stack('scripts')
     </body>

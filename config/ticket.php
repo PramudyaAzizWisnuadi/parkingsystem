@@ -62,4 +62,84 @@ return [
         'entry_time' => env('TICKET_LABEL_ENTRY_TIME', 'Masuk'),
         'rate' => env('TICKET_LABEL_RATE', 'TARIF'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Field Display Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure which fields to show/hide on the ticket
+    |
+    */
+    'fields' => [
+        'company_title' => [
+            'show' => env('TICKET_SHOW_COMPANY_TITLE', true),
+            'label' => env('TICKET_LABEL_COMPANY_TITLE', 'TIKET PARKIR'),
+        ],
+        'company_name' => [
+            'show' => env('TICKET_SHOW_COMPANY_NAME', true),
+            'label' => env('TICKET_LABEL_COMPANY_NAME', 'Manajemen Parkir'),
+        ],
+        'company_address' => [
+            'show' => env('TICKET_SHOW_COMPANY_ADDRESS', true),
+        ],
+        'company_phone' => [
+            'show' => env('TICKET_SHOW_COMPANY_PHONE', true),
+        ],
+        'ticket_number' => [
+            'show' => env('TICKET_SHOW_TICKET_NUMBER', true),
+            'label' => env('TICKET_LABEL_TICKET_NUMBER', 'No. Tiket'),
+        ],
+        'license_plate' => [
+            'show' => env('TICKET_SHOW_LICENSE_PLATE', true),
+            'label' => env('TICKET_LABEL_LICENSE_PLATE', 'Plat Nomor'),
+            'required' => env('TICKET_REQUIRE_LICENSE_PLATE', false), // Show even if empty
+        ],
+        'vehicle_type' => [
+            'show' => env('TICKET_SHOW_VEHICLE_TYPE', true),
+            'label' => env('TICKET_LABEL_VEHICLE_TYPE', 'Jenis Kendaraan'),
+        ],
+        'entry_time' => [
+            'show' => env('TICKET_SHOW_ENTRY_TIME', true),
+            'label' => env('TICKET_LABEL_ENTRY_TIME', 'Waktu Masuk'),
+            'format' => env('TICKET_ENTRY_TIME_FORMAT', 'd/m/Y H:i'),
+        ],
+        'amount' => [
+            'show' => env('TICKET_SHOW_AMOUNT', true),
+            'label' => env('TICKET_LABEL_AMOUNT', 'Tarif'),
+            'prefix' => env('TICKET_AMOUNT_PREFIX', 'Rp '),
+            'format' => env('TICKET_AMOUNT_FORMAT', '0,0.'), // Laravel number format style
+        ],
+        'footer_message' => [
+            'show' => env('TICKET_SHOW_FOOTER_MESSAGE', true),
+            'text' => env('TICKET_FOOTER_MESSAGE', 'Terima kasih atas kunjungan Anda'),
+        ],
+        'footer_timestamp' => [
+            'show' => env('TICKET_SHOW_FOOTER_TIMESTAMP', true),
+            'format' => env('TICKET_FOOTER_TIMESTAMP_FORMAT', 'd-m-Y H:i:s'),
+        ],
+        'copy_label' => [
+            'show' => env('TICKET_SHOW_COPY_LABEL', true),
+            'text' => env('TICKET_COPY_LABEL_TEXT', '-- COPY --'),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Layout Options
+    |--------------------------------------------------------------------------
+    |
+    | Configure layout and visual elements
+    |
+    */
+    'layout' => [
+        'show_top_separator' => env('TICKET_SHOW_TOP_SEPARATOR', true),
+        'show_middle_separator' => env('TICKET_SHOW_MIDDLE_SEPARATOR', true),
+        'show_bottom_separator' => env('TICKET_SHOW_BOTTOM_SEPARATOR', true),
+        'separator_style' => env('TICKET_SEPARATOR_STYLE', 'dashed'), // solid, dashed, dotted
+        'header_alignment' => env('TICKET_HEADER_ALIGNMENT', 'center'), // left, center, right
+        'info_alignment' => env('TICKET_INFO_ALIGNMENT', 'left'), // left, center, right
+        'amount_alignment' => env('TICKET_AMOUNT_ALIGNMENT', 'center'), // left, center, right
+        'footer_alignment' => env('TICKET_FOOTER_ALIGNMENT', 'center'), // left, center, right
+    ],
 ];

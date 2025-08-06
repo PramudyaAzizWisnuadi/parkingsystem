@@ -28,6 +28,15 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Get the authenticated user
+        $user = Auth::user();
+
+        // Redirect based on user role
+        if ($user && $user->role === 'petugas') {
+            return redirect()->intended(route('parking.index'));
+        }
+
+        // Default redirect for admin and other roles
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

@@ -446,6 +446,42 @@
                 document.getElementById('loading').style.display = 'block';
             });
 
+            // Prevent browser back button after login attempt
+            (function(global) {
+                'use strict';
+
+                if (typeof(global) === "undefined") {
+                    throw new Error("window is undefined");
+                }
+
+                var _hash = "!";
+                var noBackPlease = function() {
+                    global.location.href += "#";
+                    global.setTimeout(function() {
+                        global.location.href += "!";
+                    }, 50);
+                };
+
+                global.onhashchange = function() {
+                    if (global.location.hash !== _hash) {
+                        global.location.hash = _hash;
+                    }
+                };
+
+                global.onload = function() {
+                    noBackPlease();
+                };
+
+                // Alternative method using history API
+                window.addEventListener('load', function() {
+                    window.history.pushState({}, '', window.location.href);
+                    window.addEventListener('popstate', function() {
+                        window.history.pushState({}, '', window.location.href);
+                    });
+                });
+
+            })(window);
+
             // Add some interactivity
             document.addEventListener('DOMContentLoaded', function() {
                 // Focus effects

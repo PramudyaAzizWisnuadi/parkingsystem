@@ -56,7 +56,7 @@ class ParkingController extends Controller
                     'message' => 'Transaksi parkir berhasil dibuat. Tiket nomor: ' . $transaction->ticket_number,
                     'ticket_id' => $transaction->id,
                     'ticket_number' => $transaction->ticket_number,
-                    'print_url' => route('parking.print', $transaction->id)
+                    'print_url' => route('parking.print', [$transaction->id, 'auto_print' => 1])
                 ]);
             }
 

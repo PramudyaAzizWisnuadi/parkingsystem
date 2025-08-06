@@ -5,7 +5,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
         <meta name="theme-color" content="#007bff">
-        <title>{{ config('ticket.company.title') }} - {{ $parking->ticket_number }}</title>
+        <title>{{ env('TICKET_TITLE', 'TIKET PARKIR') }} - {{ $parking->ticket_number }}</title>
         <style>
             :root {
                 --primary-color: #007bff;
@@ -102,8 +102,6 @@
                 font-weight: bold;
                 margin: 12px 0;
                 text-align: center;
-                border-top: 1px dashed #000;
-                border-bottom: 1px dashed #000;
                 padding: 6px 0;
                 color: var(--success-color);
             }
@@ -479,8 +477,6 @@
                     font-weight: bold !important;
                     background: white !important;
                     color: black !important;
-                    border-top: 1px dashed #000 !important;
-                    border-bottom: 1px dashed #000 !important;
                     padding: 6px 0 !important;
                     margin: 12px 0 !important;
                     border-radius: 0 !important;
@@ -620,75 +616,84 @@
         <!-- Mobile header (visible only on mobile) -->
         <div class="mobile-header">
             <h3>Tiket Parkir</h3>
-            <p>{{ $parking->ticket_number }}</p>
         </div>
 
         <!-- Ticket container for better mobile presentation -->
         <div class="ticket-container">
             <div class="ticket">
-                <h1>{{ config('ticket.company.title', 'SISTEM PARKIR') }}</h1>
-                <h2>{{ config('ticket.company.name', 'Manajemen Parkir') }}</h2>
-
-                @if (isset($isCopy) && $isCopy)
-                    <div class="copy-label">
-                        <strong>-- COPY --</strong>
-                    </div>
+                @if (env('TICKET_SHOW_COMPANY_INFO', true))
+                    <h1>{{ env('TICKET_TITLE', 'TIKET PARKIR') }}</h1>
                 @endif
 
-                @if (config('ticket.content.show_company_info', true) &&
-                        (config('ticket.company.address') || config('ticket.company.phone')))
+                @if (env('TICKET_SHOW_COMPANY_NAME', true))
+                    <h2>{{ env('TICKET_COMPANY_NAME', 'Manajemen Parkir') }}</h2>
+                @endif
+
+                @if (env('TICKET_SHOW_COMPANY_ADDRESS', true) && env('TICKET_ADDRESS'))
                     <div class="company-info">
-                        @if (config('ticket.company.address'))
-                            <p>{{ config('ticket.company.address') }}</p>
-                        @endif
-                        @if (config('ticket.company.phone'))
-                            <p>{{ config('ticket.company.phone') }}</p>
-                        @endif
+                        <p>{{ env('TICKET_ADDRESS') }}</p>
                     </div>
                 @endif
 
-                @if (config('ticket.content.show_separator', true))
+                @if (env('TICKET_SHOW_COMPANY_PHONE', true) && env('TICKET_PHONE'))
+                    <div class="company-info">
+                        <p>{{ env('TICKET_PHONE') }}</p>
+                    </div>
+                @endif
+
+                {{-- Garis pemisah setelah informasi perusahaan --}}
+                @if (
+                    (env('TICKET_SHOW_COMPANY_ADDRESS', true) && env('TICKET_ADDRESS')) ||
+                        (env('TICKET_SHOW_COMPANY_PHONE', true) && env('TICKET_PHONE')))
                     <div class="separator"></div>
                 @endif
 
                 <div class="ticket-info">
                     <table>
-                        <tr>
-                            <td>{{ config('ticket.labels.ticket', 'No. Tiket') }}</td>
-                            <td>{{ $parking->ticket_number }}</td>
-                        </tr>
-                        @if(!empty($parking->license_plate))
-                        <tr>
-                            <td>{{ config('ticket.labels.license_plate', 'Plat Nomor') }}</td>
-                            <td>{{ $parking->license_plate }}</td>
-                        </tr>
+                        @if (env('TICKET_SHOW_TICKET_NUMBER', true))
+                            <tr>
+                                <td>No. Tiket</td>
+                                <td>{{ $parking->ticket_number }}</td>
+                            </tr>
                         @endif
-                        <tr>
-                            <td>{{ config('ticket.labels.vehicle_type', 'Jenis Kendaraan') }}</td>
-                            <td>{{ $parking->vehicleType->name }}</td>
-                        </tr>
-                        <tr>
-                            <td>{{ config('ticket.labels.entry_time', 'Waktu Masuk') }}</td>
-                            <td>{{ $parking->entry_time->format(config('ticket.content.date_format', 'd/m/Y H:i')) }}
-                            </td>
-                        </tr>
+
+                        @if (env('TICKET_SHOW_LICENSE_PLATE', true) && $parking->license_plate)
+                            <tr>
+                                <td>Plat Nomor</td>
+                                <td>{{ $parking->license_plate }}</td>
+                            </tr>
+                        @endif
+
+                        @if (env('TICKET_SHOW_VEHICLE_TYPE', true))
+                            <tr>
+                                <td>Jenis</td>
+                                <td>{{ $parking->vehicleType->name }}</td>
+                            </tr>
+                        @endif
+
+                        @if (env('TICKET_SHOW_ENTRY_TIME', true))
+                            <tr>
+                                <td>Waktu Masuk</td>
+                                <td>{{ $parking->entry_time->format('d/m/Y H:i') }}</td>
+                            </tr>
+                        @endif
                     </table>
                 </div>
 
-                <div class="amount">
-                    {{ config('ticket.labels.rate', 'Tarif') }}: Rp {{ number_format($parking->amount, 0, ',', '.') }}
-                </div>
+                @if (env('TICKET_SHOW_AMOUNT', true))
+                    <div class="amount">
+                        Tarif: Rp {{ number_format($parking->amount, 0, ',', '.') }}
+                    </div>
+                @endif
 
-                @if (config('ticket.content.show_separator', true))
+                @if (env('TICKET_SHOW_SEPARATOR', true))
                     <div class="separator"></div>
                 @endif
 
                 <div class="footer">
-                    @if (config('ticket.content.show_thank_you', true))
-                        <p>{{ config('ticket.content.thank_you_text', 'Terima kasih atas kunjungan Anda') }}</p>
+                    @if (env('TICKET_SHOW_THANK_YOU', true))
+                        <p>{{ env('TICKET_THANK_YOU_TEXT', 'Terima kasih atas kunjungan Anda') }}</p>
                     @endif
-                    <p>{{ $parking->entry_time->format(config('ticket.content.footer_date_format', 'd-m-Y H:i:s')) }}
-                    </p>
                 </div>
             </div>
         </div>
@@ -707,11 +712,10 @@
 
             <script>
                 // Auto print when page loads from redirect after create
-                @if (session('auto_print') || config('ticket.auto_print.enabled', false))
+                @if (session('auto_print') || request('auto_print') || env('TICKET_AUTO_PRINT', false))
                     window.onload = function() {
                         // Add a small delay for mobile devices
-                        const delay = /Mobi|Android/i.test(navigator.userAgent) ? 1000 :
-                            {{ config('ticket.auto_print.delay', 500) }};
+                        const delay = /Mobi|Android/i.test(navigator.userAgent) ? 1000 : 500;
 
                         setTimeout(function() {
                             window.print();
